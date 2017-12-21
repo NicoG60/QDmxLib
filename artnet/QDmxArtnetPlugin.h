@@ -22,13 +22,12 @@ public:
 
     //===== DEVICE
     virtual QStringList getDevices();
+    virtual bool deviceExists(int device);
 
     //===== INPUTS
-    virtual int getInputCount(QString device);
     virtual int getInputCount(int device);
-    virtual bool openInput(QString device, int port);
+    virtual bool inputExists(int device, int port);
     virtual bool openInput(int device, int port);
-    virtual bool closeInput(QString device, int port);
     virtual bool closeInput(int device, int port);
 
 private slots:
@@ -39,11 +38,9 @@ signals:
 
     //===== OUTPUTS
 public:
-    virtual int getOutputCount(QString device);
     virtual int getOutputCount(int device);
-    virtual bool openOutput(QString device, int port);
+    virtual bool outputExists(int device, int port);
     virtual bool openOutput(int device, int port);
-    virtual bool closeOutput(QString device, int port);
     virtual bool closeOutput(int device, int port);
 
 public slots:

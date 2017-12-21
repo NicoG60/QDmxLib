@@ -10,7 +10,7 @@ DEPENDPATH  += ../src
 
 win32:QMAKE_LFLAGS += -shared
 
-target.path = $$INSTALLROOT/$$PLUGINDIR
+target.path = /Users/nicolas/Programmation/plugin
 INSTALLS   += target
 
 HEADERS += ../src/QDmxIO.h \

@@ -15,7 +15,8 @@ QDmxArtnetPlugin::~QDmxArtnetPlugin()
         _worker->deleteLater();
     }
 
-    qDeleteAll(_controlerList);
+    foreach (QDmxArtnetControler_ptr artnet, _controlerList)
+        artnet.clear();
 }
 
 void QDmxArtnetPlugin::init()
@@ -31,18 +32,22 @@ void QDmxArtnetPlugin::init()
     {
         foreach(QNetworkAddressEntry entry, iface.addressEntries())
         {
-            bool exists = false;
-
-            for(int i = 0; _controlerList.length(); i++)
-                exists |= _controlerList.at(i)->isAddress(entry);
-
-            if(!exists)
+            if(entry.ip().protocol() == QAbstractSocket::IPv4Protocol)
             {
-                QDmxArtnetControler* tmp = new QDmxArtnetControler(iface, entry);
-                tmp->moveToThread(_worker);
-                connect(tmp, &QDmxArtnetControler::hasDmx, this, &QDmxArtnetPlugin::dmxRecieve);
-                tmp->init();
-                _controlerList.append(tmp);
+                bool exists = false;
+
+                for(int i = 0; i < _controlerList.length(); i++)
+                    exists |= _controlerList.at(i)->isAddress(entry);
+
+                if(!exists)
+                {
+                    QDmxArtnetControler_ptr tmp;
+                    tmp.reset(new QDmxArtnetControler(iface, entry));
+                    tmp->moveToThread(_worker);
+                    connect(tmp.data(), &QDmxArtnetControler::hasDmx, this, &QDmxArtnetPlugin::dmxRecieve);
+                    tmp->init();
+                    _controlerList.append(tmp);
+                }
             }
         }
     }
@@ -59,41 +64,33 @@ QStringList QDmxArtnetPlugin::getDevices()
     return r;
 }
 
-//===== INPUTS
-int QDmxArtnetPlugin::getInputCount(QString device)
+bool QDmxArtnetPlugin::deviceExists(int device)
 {
-    for(int i = 0; i < _controlerList.length(); i++)
-        if(_controlerList.at(i)->getAddrString() == device)
-            return getInputCount(i);
-    return 0;
+    return device >= 0 && device < _controlerList.length();
 }
 
+//===== INPUTS
 int QDmxArtnetPlugin::getInputCount(int device)
 {
-    if(device < _controlerList.length())
+    if(deviceExists(device))
         return _controlerList.at(device)->getNbreInputPort();
     return 0;
 }
 
-bool QDmxArtnetPlugin::openInput(QString device, int port)
+bool QDmxArtnetPlugin::inputExists(int device, int port)
 {
-    for(int i = 0; i < _controlerList.length(); i++)
-        if(_controlerList.at(i)->getAddrString() == device)
-            return openInput(i, port);
-
-    _lastError = "wrong device name";
-    return false;
+    return port >= 0 && port < getInputCount(device);
 }
 
 bool QDmxArtnetPlugin::openInput(int device, int port)
 {
-    if(device >= _controlerList.length() || device < 0)
+    if(!deviceExists(device))
     {
         _lastError = "wrong device id";
         return false;
     }
 
-    if(port > getInputCount(device) || port < 0)
+    if(!inputExists(device, port))
     {
         _lastError = "wrong port id";
         return false;
@@ -116,25 +113,15 @@ bool QDmxArtnetPlugin::openInput(int device, int port)
     return true;
 }
 
-bool QDmxArtnetPlugin::closeInput(QString device, int port)
-{
-    for(int i = 0; i < _controlerList.length(); i++)
-        if(_controlerList.at(i)->getAddrString() == device)
-            return closeInput(i, port);
-
-    _lastError = "wrong device name";
-    return false;
-}
-
 bool QDmxArtnetPlugin::closeInput(int device, int port)
 {
-    if(device >= _controlerList.length() || device < 0)
+    if(!deviceExists(device))
     {
         _lastError = "wrong device id";
         return false;
     }
 
-    if(port > getInputCount(device) || port < 0)
+    if(!inputExists(device, port))
     {
         _lastError = "wrong port id";
         return false;
@@ -161,7 +148,9 @@ void QDmxArtnetPlugin::dmxRecieve(int universe, QByteArray data)
 {
     if(sender())
     {
-        int device = _controlerList.indexOf(qobject_cast<QDmxArtnetControler*>(sender()));
+        QDmxArtnetControler_ptr ptr;
+        ptr.reset(qobject_cast<QDmxArtnetControler*>(sender()));
+        int device = _controlerList.indexOf(ptr);
 
         if(device >= 0)
             emit dmxInput(device, universe, data);
@@ -173,46 +162,33 @@ void QDmxArtnetPlugin::dmxRecieve(int universe, QByteArray data)
 }
 
 //===== OUTPUTS
-int QDmxArtnetPlugin::getOutputCount(QString device)
-{
-    for(int i = 0; i < _controlerList.length(); i++)
-        if(_controlerList.at(i)->getAddrString() == device)
-            return getOutputCount(i);
-    return 0;
-}
-
 int QDmxArtnetPlugin::getOutputCount(int device)
 {
-    if(device < _controlerList.length())
+    if(deviceExists(device))
         return _controlerList.at(device)->getNbreOutputPort();
     return 0;
 }
 
-bool QDmxArtnetPlugin::openOutput(QString device, int port)
+bool QDmxArtnetPlugin::outputExists(int device, int port)
 {
-    for(int i = 0; i < _controlerList.length(); i++)
-        if(_controlerList.at(i)->getAddrString() == device)
-            return openOutput(i, port);
-
-    _lastError = "wrong device name";
-    return false;
+    return port >= 0 && port < getOutputCount(device);
 }
 
 bool QDmxArtnetPlugin::openOutput(int device, int port)
 {
-    if(device >= _controlerList.length() || device < 0)
+    if(!deviceExists(device))
     {
         _lastError = "wrong device id";
         return false;
     }
 
-    if(port > getInputCount(device) || port < 0)
+    if(!outputExists(device, port))
     {
         _lastError = "wrong port id";
         return false;
     }
 
-    if(inputIsOpened(device, port))
+    if(outputIsOpened(device, port))
     {
         _lastError = "already opened";
         return false;
@@ -229,25 +205,15 @@ bool QDmxArtnetPlugin::openOutput(int device, int port)
     return true;
 }
 
-bool QDmxArtnetPlugin::closeOutput(QString device, int port)
-{
-    for(int i = 0; i < _controlerList.length(); i++)
-        if(_controlerList.at(i)->getAddrString() == device)
-            return closeOutput(i, port);
-
-    _lastError = "wrong device name";
-    return false;
-}
-
 bool QDmxArtnetPlugin::closeOutput(int device, int port)
 {
-    if(device >= _controlerList.length() || device < 0)
+    if(!deviceExists(device))
     {
         _lastError = "wrong device id";
         return false;
     }
 
-    if(port > getInputCount(device) || port < 0)
+    if(!outputExists(device, port))
     {
         _lastError = "wrong port id";
         return false;
@@ -272,7 +238,7 @@ bool QDmxArtnetPlugin::closeOutput(int device, int port)
 
 void QDmxArtnetPlugin::writeDmx(int device, int port, QByteArray data)
 {
-    if(device < _controlerList.length())
-        if(port < getOutputCount(device))
-            QMetaObject::invokeMethod(_controlerList[device], "write", Qt::QueuedConnection, Q_ARG(int, port), Q_ARG(QByteArray, data));
+    if(deviceExists(device))
+        if(outputExists(device, port))
+            QMetaObject::invokeMethod(_controlerList[device].data(), "write", Qt::QueuedConnection, Q_ARG(int, port), Q_ARG(QByteArray, data));
 }

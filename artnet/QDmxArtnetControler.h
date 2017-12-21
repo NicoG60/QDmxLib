@@ -11,8 +11,6 @@
 
 #define ARTNET_PORT 6454
 
-typedef QSharedPointer<QDmxArtnetControler> QDmxArtnetControler_ptr;
-
 class QDmxArtnetControler : public QObject
 {
     Q_OBJECT
@@ -46,7 +44,7 @@ private slots:
     void readDatagram();
 
 private:
-    bool connectSocket();
+    bool socketIsOk();
     bool disconnectSocket();
     void sendPollReply();
 
@@ -67,5 +65,7 @@ private:
 
     QDmxArtNetPacketizer* _packetizer;
 };
+
+typedef QSharedPointer<QDmxArtnetControler> QDmxArtnetControler_ptr;
 
 #endif // QDMXARTNETCONTROLER_H
