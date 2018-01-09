@@ -44,7 +44,11 @@ TestArtnet::TestArtnet()
 
 void TestArtnet::initTestCase()
 {
+#ifdef Q_OS_WIN
+    QCoreApplication::addLibraryPath("E:/Prog/plugin");
+#else
     QCoreApplication::addLibraryPath("/Users/nicolas/Programmation/plugin/");
+#endif
 }
 
 void TestArtnet::testLoad()

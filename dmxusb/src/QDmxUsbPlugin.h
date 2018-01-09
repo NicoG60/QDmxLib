@@ -22,24 +22,24 @@ public:
 public slots:
     virtual void rescanDevices();
 public:
-    virtual QMap<quint32, QString> getDevices() const {}
-    virtual bool deviceExists(quint32 device) const {}
+    virtual QMap<quint32, QString> getDevices() const { return QMap<quint32, QString>(); }
+    virtual bool deviceExists(quint32 device) const { return false; }
 
     //===== INPUTS
-    virtual quint32 getInputCount(quint32 device) const {}
-    virtual bool inputExists(quint32 device, quint32 port) const {}
-    virtual bool openInput(quint32 device, quint32 port) {}
-    virtual bool closeInput(quint32 device, quint32 port) {}
+    virtual quint32 getInputCount(quint32 device) const { return 0; }
+    virtual bool inputExists(quint32 device, quint32 port) const { return false; }
+    virtual bool openInput(quint32 device, quint32 port) { return false; }
+    virtual bool closeInput(quint32 device, quint32 port) { return false; }
 
 private slots:
     void dmxRecieve(quint32 universe, const QByteArray& data) {}
 
     //===== OUTPUTS
 public:
-    virtual quint32 getOutputCount(quint32 device) const {}
-    virtual bool outputExists(quint32 device, quint32 port) const {}
-    virtual bool openOutput(quint32 device, quint32 port) {}
-    virtual bool closeOutput(quint32 device, quint32 port) {}
+    virtual quint32 getOutputCount(quint32 device) const { return 0; }
+    virtual bool outputExists(quint32 device, quint32 port) const { return false; }
+    virtual bool openOutput(quint32 device, quint32 port) { return false; }
+    virtual bool closeOutput(quint32 device, quint32 port) { return false; }
 
 public slots:
     virtual void writeDmx(quint32 device, quint32 port, QByteArray data) {}

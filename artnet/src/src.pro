@@ -10,7 +10,8 @@ CONFIG      += plugin
 win32:QMAKE_LFLAGS += -shared
 
 CONFIG(debug, debug|release){
-    target.path = /Users/nicolas/Programmation/plugin
+    unix: target.path = /Users/nicolas/Programmation/plugin
+    win32:  target.path = E:/Prog/plugin
     INSTALLS   += target
 }
 

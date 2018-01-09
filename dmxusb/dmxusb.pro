@@ -1,3 +1,4 @@
 TEMPLATE = subdirs
 
-SUBDIRS += src testUSBDmx
+SUBDIRS += src
+SUBDIRS += testUSBDmx

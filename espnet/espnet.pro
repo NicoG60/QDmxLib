@@ -1,3 +1,4 @@
 TEMPLATE = subdirs
 
-SUBDIRS += src testESPNet
+SUBDIRS += src
+SUBDIRS += testESPNet

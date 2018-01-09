@@ -34,6 +34,7 @@ private Q_SLOTS:
 
 private:
     QDmxIO* plug;
+    quint32 id;
 };
 
 TestUSBDmx::TestUSBDmx()
@@ -43,12 +44,20 @@ TestUSBDmx::TestUSBDmx()
 
 void TestUSBDmx::initTestCase()
 {
+#ifdef Q_OS_WIN
+    QCoreApplication::addLibraryPath("E:/Prog/plugin");
+#else
     QCoreApplication::addLibraryPath("/Users/nicolas/Programmation/plugin/");
+#endif
 }
 
 void TestUSBDmx::testLoad()
 {
+#ifdef Q_OS_WIN
+    QPluginLoader loader("QDmxUsb");
+#else
     QPluginLoader loader("libQDmxUsb");
+#endif
     if(!loader.load())
     {
         qDebug() << loader.errorString();

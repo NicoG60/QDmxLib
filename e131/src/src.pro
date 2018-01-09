@@ -10,13 +10,13 @@ CONFIG      += plugin
 win32:QMAKE_LFLAGS += -shared
 
 CONFIG(debug, debug|release){
-    target.path = /Users/nicolas/Programmation/plugin
+    unix: target.path = /Users/nicolas/Programmation/plugin
+    win32:  target.path = E:/Prog/plugin
     INSTALLS   += target
 }
+CONFIG += network_interface
 
 include(../../interface/interface.pri)
-
-CONFIG += network_interface
 
 HEADERS += \
     QDmxE131Plugin.h \

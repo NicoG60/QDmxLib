@@ -1,11 +1,12 @@
 #include "QDmxFTDIInterface.h"
 
+#include <memory>
 #include <libusb.h>
 
 QDmxFTDIInterface::QDmxFTDIInterface(const QString& serial, const QString& name, const QString &vendor, quint16 VID, quint16 PID, quint32 id) :
     QDmxUsbInterface(serial, name, vendor, VID, PID, id)
 {
-    bzero(&_ftdi, sizeof(struct ftdi_context));
+    memset(&_ftdi, 0 , sizeof(struct ftdi_context));
     ftdi_init(&_ftdi);
 }
 
@@ -25,6 +26,8 @@ QList<QDmxUsbInterface*> QDmxFTDIInterface::interfaces()
 
     if(!ftdi)
         return r;
+
+    libusb_set_debug(ftdi->usb_ctx, LIBUSB_LOG_LEVEL_WARNING);
 
     //get devices list
     struct ftdi_device_list* devList;

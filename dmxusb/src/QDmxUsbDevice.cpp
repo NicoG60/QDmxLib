@@ -3,6 +3,9 @@
 #ifdef LIBFTDI1
 #include "Interfaces/QDmxFTDIInterface.h"
 #endif
+#ifdef FTD2XX
+#include "Interfaces/QDmxFTD2XXInterface.h"
+#endif
 
 QDmxUsbDevice::QDmxUsbDevice(QDmxUsbInterface* iface, QObject *parent) :
     QThread(parent),
@@ -23,6 +26,10 @@ QMap<quint32, QDmxUsbDevice *> QDmxUsbDevice::devices()
     QList<QDmxUsbInterface*> interfaceList;
 #ifdef LIBFTDI1
     interfaceList << QDmxFTDIInterface::interfaces();
+#endif
+
+#ifdef FTD2XX
+    interfaceList << QDmxFTD2XXInterface::interfaces();
 #endif
 
     foreach (QDmxUsbInterface* iface, interfaceList) {
