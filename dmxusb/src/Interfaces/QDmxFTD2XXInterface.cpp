@@ -3,7 +3,9 @@
 #include <memory>
 
 QDmxFTD2XXInterface::QDmxFTD2XXInterface(const QString& serial, const QString& name, const QString &vendor, quint16 VID, quint16 PID, quint32 id) :
-    QDmxUsbInterface(serial, name, vendor, VID, PID, id)
+    QDmxUsbInterface(serial, name, vendor, VID, PID, id),
+    _status(FT_OK),
+    _handle(0)
 {
 }
 
@@ -21,7 +23,7 @@ QList<QDmxUsbInterface*> QDmxFTD2XXInterface::interfaces()
     FT_STATUS status = 0;
 
     //create device list
-    if((status = FT_CreateDeviceInfoList(&nbreDev)) != 0)
+    if((status = FT_CreateDeviceInfoList(&nbreDev)) != FT_OK)
     {
         qDebug() << Q_FUNC_INFO << errorString(status);
         return r;
@@ -34,7 +36,7 @@ QList<QDmxUsbInterface*> QDmxFTD2XXInterface::interfaces()
         QString vendor, description, serial;
         quint16 vid, pid;
 
-        if((status = getInterfaceInfo(i, vendor, description, serial, vid, pid)) != 0)
+        if((status = getInterfaceInfo(i, vendor, description, serial, vid, pid)) != FT_OK)
         {
             qDebug() << Q_FUNC_INFO << errorString(status);
             return r;
@@ -42,7 +44,7 @@ QList<QDmxUsbInterface*> QDmxFTD2XXInterface::interfaces()
 
         qDebug() << "Dev" << i << ":" << vendor << description << serial << vid << pid;
 
-        r << new QDmxFTD2XXInterface(serial, description, vendor, vid, pid);
+        r << new QDmxFTD2XXInterface(serial, description, vendor, vid, pid, i);
     }
 
     return r;
@@ -50,72 +52,182 @@ QList<QDmxUsbInterface*> QDmxFTD2XXInterface::interfaces()
 
 bool QDmxFTD2XXInterface::open()
 {
-    return false;
+    if(isOpen())
+        return true;
+
+    if((_status = FT_Open(id(), &_handle)) != FT_OK)
+    {
+        qDebug() << Q_FUNC_INFO << errorString(_status);
+        return false;
+    }
+
+    return true;
 }
 
 bool QDmxFTD2XXInterface::openByPID(const int FTDIPID)
 {
-    return false;
+    Q_UNUSED(FTDIPID)
+    return open();
 }
 
 bool QDmxFTD2XXInterface::close()
 {
-    return false;
+    if(!isOpen())
+        return true;
+
+    if((_status = FT_Close(_handle)) != FT_OK)
+    {
+        qDebug() << Q_FUNC_INFO << errorString(_status);
+        return false;
+    }
+
+    _handle = 0;
+
+    return true;
 }
 
 bool QDmxFTD2XXInterface::isOpen() const
 {
-    return false;
+    return _handle != 0;
 }
 
 bool QDmxFTD2XXInterface::reset()
 {
-    return false;
+    if((_status = FT_ResetDevice(_handle)) != FT_OK)
+    {
+        qDebug() << Q_FUNC_INFO << errorString(_status);
+        return false;
+    }
+
+    return true;
 }
 
 bool QDmxFTD2XXInterface::setLineProperties()
 {
-    return false;
+    if((_status = FT_SetDataCharacteristics(_handle, FT_BITS_8, FT_STOP_BITS_2, FT_PARITY_NONE)) != FT_OK)
+    {
+        qDebug() << Q_FUNC_INFO << errorString(_status);
+        return false;
+    }
+
+    return true;
 }
 
 bool QDmxFTD2XXInterface::setBaudRate()
 {
-    return false;
+    if((_status = FT_SetBaudRate(_handle, 250000)) != FT_OK)
+    {
+        qDebug() << Q_FUNC_INFO << errorString(_status);
+        return false;
+    }
+
+    return true;
 }
 
 bool QDmxFTD2XXInterface::setFlowControl()
 {
-    return false;
+    if((_status = FT_SetFlowControl(_handle, FT_FLOW_NONE, 0, 0)) != FT_OK)
+    {
+        qDebug() << Q_FUNC_INFO << errorString(_status);
+        return false;
+    }
+
+    return true;
 }
 
 bool QDmxFTD2XXInterface::clearRts()
 {
-    return false;
+    if((_status = FT_ClrRts(_handle)) != FT_OK)
+    {
+        qDebug() << Q_FUNC_INFO << errorString(_status);
+        return false;
+    }
+
+    return true;
 }
 
 bool QDmxFTD2XXInterface::purgeBuffers()
 {
-    return false;
+    if((_status = FT_Purge(_handle, FT_PURGE_RX | FT_PURGE_TX)) != FT_OK)
+    {
+        qDebug() << Q_FUNC_INFO << errorString(_status);
+        return false;
+    }
+
+    return true;
 }
 
 bool QDmxFTD2XXInterface::setBreak(bool on)
 {
-    return false;
+    if(on)  _status = FT_SetBreakOn(_handle);
+    else    _status = FT_SetBreakOff(_handle);
+
+    if(_status != FT_OK)
+    {
+        qDebug() << Q_FUNC_INFO << errorString(_status);
+        return false;
+    }
+
+    return true;
 }
 
 bool QDmxFTD2XXInterface::write(const QByteArray& data)
 {
-    return false;
+    DWORD bytesWritten;
+
+    if((_status = FT_Write(_handle, (LPVOID)data.data(), data.size(), &bytesWritten)) != FT_OK)
+    {
+        qDebug() << Q_FUNC_INFO << errorString(_status);
+        return false;
+    }
+
+    return true;
 }
 
 QByteArray QDmxFTD2XXInterface::read(int size, uchar* buffer)
 {
-    return QByteArray();
+    /**
+     * TODO = FT_Read does not returned until the number of byte passed has been read. Have to check FT_GetStatus to know how many bytes we have to read;
+     */
+    QByteArray r;
+    uchar* mBuffer;
+    DWORD bytesRead;
+
+    if(!buffer)
+        mBuffer = (uchar*)malloc(sizeof(uchar)*size);
+    else
+        mBuffer = buffer;
+
+    if((_status = FT_Read(_handle, mBuffer, size, &bytesRead)) != FT_OK)
+    {
+        qDebug() << Q_FUNC_INFO << errorString(_status);
+        return r;
+    }
+
+    for(int i = 0; i < bytesRead; i++)
+        r.append((char)mBuffer[i]);
+
+    if(!buffer)
+        delete mBuffer;
+
+    return r;
 }
 
 uchar QDmxFTD2XXInterface::readByte(bool* ok)
 {
-    return 0;
+    uchar r;
+    DWORD byteRead;
+
+    if((_status = FT_Read(_handle, &r, 1, &byteRead)) != FT_OK)
+    {
+        qDebug() << Q_FUNC_INFO << errorString(_status);
+        *ok = false;
+        return 0;
+    }
+
+    *ok = true;
+
+    return r;
 }
 
 QString QDmxFTD2XXInterface::errorString(FT_STATUS status)

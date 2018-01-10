@@ -34,6 +34,10 @@ public:
 private:
     static QString errorString(FT_STATUS status);
     static FT_STATUS getInterfaceInfo(DWORD deviceIndex, QString& vendor, QString& description, QString& serial, quint16 &VID, quint16 &PID);
+
+private:
+    FT_STATUS _status;
+    FT_HANDLE _handle;
 };
 
 #endif // QDMXFTD2XXINTERFACE_H

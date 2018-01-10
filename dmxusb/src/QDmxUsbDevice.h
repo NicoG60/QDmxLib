@@ -30,13 +30,13 @@ public:
     virtual Type type() const = 0;
 
     /** Get the QDmxInterface instance */
-    QDmxUsbInterface* interface() const;
+    QDmxUsbInterface* interface() const { return _iface; }
 
     /** Get the QDmxInterface driver in use as a string */
-    QString interfaceTypeString() const;
+    QString interfaceTypeString() const { return _iface->typeString(); }
 
     /** change internal driver */
-    bool forceInterfaceDriver(QDmxUsbInterface::Type type);
+    bool forceInterfaceDriver(QDmxUsbInterface::Type type) { return false; }
 
     /** Get list of all connected devices */
     static QMap<quint32, QDmxUsbDevice *> devices();
@@ -54,12 +54,12 @@ public:
     /**
      * @return the number of input ports
      */
-    virtual quint32 getNbreInputPort();
+    virtual quint32 getNbreInputPort() = 0;
 
     /**
      * @return the number of output ports
      */
-    virtual quint32 getNbreOutputPort();
+    virtual quint32 getNbreOutputPort() = 0;
 
     /**
      * Open the given input or output port. Configures the interface to interact with this port properly
@@ -97,15 +97,15 @@ public:
     virtual QString uniqueName() const { return QString("%1 (S/N: %2)").arg(name()).arg(serial()); }
 
     /** Set the real device name extracted from serial using label 78 */
-    void setRealName(QString devName);
+    void setRealName(QString devName) { _realName = devName; }
 
     /** retrieve the real device name read from label 78 */
-    virtual QString realName() const;
+    virtual QString realName() const { return _realName; }
 
     /**
      * @return device's vendor
      */
-    virtual QString vendor() const;
+    virtual QString vendor() const { return _iface->vendor(); }
 
     /**
      * Get any additional information pertaining to the device (can be empty)
@@ -113,7 +113,7 @@ public:
     virtual QString additionalInfo() const { return QString(); }
 
 private:
-    QString m_realName;
+    QString _realName;
 };
 
 #endif // QDMXUSBDEVICE_H
