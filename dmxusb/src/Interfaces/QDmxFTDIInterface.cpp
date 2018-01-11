@@ -17,7 +17,7 @@ QDmxFTDIInterface::~QDmxFTDIInterface()
     ftdi_deinit(&_ftdi);
 }
 
-QList<QDmxUsbInterface*> QDmxFTDIInterface::interfaces()
+QList<QDmxUsbInterface*> QDmxFTDIInterface::interfaces(QList<QDmxUsbInterface *> found)
 {
     QList<QDmxUsbInterface*> r;
 
@@ -42,22 +42,35 @@ QList<QDmxUsbInterface*> QDmxFTDIInterface::interfaces()
     //browse device list
     struct ftdi_device_list* curDev = devList;
     char manu[128], desc[128], serial[128];
+    int id = 0;
 
     while(curDev != nullptr)
     {
         if(ftdi_usb_get_strings(ftdi, curDev->dev, manu, 128, desc, 128, serial, 128) < 0)
         {
             qDebug() << "failed to read strings : " << ftdi_get_error_string(ftdi);
-            ftdi_list_free(&devList);
-
-            ftdi_free(ftdi);
-            return r;
+            id++;
+            curDev = curDev->next;
+            continue;
         }
 
         qDebug() << manu << " - " << desc << " - " << serial;
+        QString sManu(manu), sDesc(desc), sSerial(serial);
+
         struct libusb_device_descriptor usb_desc;
         libusb_get_device_descriptor(curDev->dev, &usb_desc);
-        r << new QDmxFTDIInterface(QString(serial), QString(desc), QString(manu), usb_desc.idVendor, usb_desc.idProduct);
+
+        if(validInterface(usb_desc.idVendor, usb_desc.idProduct))
+        {
+            bool exists = false;
+            for(int i = 0; i < found.length() && !exists; i++)
+                exists |= found[i]->checkInfo(sSerial, sDesc, sManu);
+
+            if(!exists)
+                r << new QDmxFTDIInterface(sSerial, sDesc, sManu, usb_desc.idVendor, usb_desc.idProduct, id);
+        }
+
+        id++;
         curDev = curDev->next;
     }
 

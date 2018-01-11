@@ -10,7 +10,7 @@ public:
     QDmxFTDIInterface(const QString& serial, const QString& name, const QString &vendor, quint16 VID, quint16 PID, quint32 id = 0);
     ~QDmxFTDIInterface();
 
-    static QList<QDmxUsbInterface*> interfaces();
+    static QList<QDmxUsbInterface*> interfaces(QList<QDmxUsbInterface*> found);
 
     virtual QDmxUsbInterface::Type type() { return QDmxUsbInterface::libFTDI; }
 

@@ -7,9 +7,9 @@
 class QDmxUsbDevice : public QThread
 {
     Q_OBJECT
-/*******************
- *  GENERAL
- *******************/
+    /********************************************************************
+     * GENERAL
+     ********************************************************************/
 public:
     QDmxUsbDevice(QDmxUsbInterface* iface, QObject* parent = 0);
     ~QDmxUsbDevice();
@@ -47,9 +47,9 @@ protected:
 private:
     QDmxUsbInterface* _iface;
 
-/*******************
- * OPEN & CLOSE
- *******************/
+    /********************************************************************
+     * IO Open & Close
+     ********************************************************************/
 public:
     /**
      * @return the number of input ports

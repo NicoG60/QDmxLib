@@ -173,7 +173,7 @@ public slots:
      * @brief slots to call when an output is needed. For serial devices, the plugin have to handle the repetition of the data over the serial line. this method must be call only when data change.
      * @param device : the device id from the device map
      * @param port : the port number
-     * @param data : the dmx data
+     * @param data : the dmx data.
      */
     virtual void writeDmx(quint32 device, quint32 port, QByteArray data) = 0;
 

@@ -28,7 +28,7 @@ bool QDmxUsbInterface::validInterface(quint16 vendor, quint16 product)
     return true;
 }
 
-bool QDmxUsbInterface::checkInfo(QString &serial, QString &name, QString &vendor)
+bool QDmxUsbInterface::checkInfo(const QString &serial, const QString &name, const QString &vendor)
 {
     if (_serial == serial &&
         _name == name &&

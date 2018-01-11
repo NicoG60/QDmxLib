@@ -1,7 +1,5 @@
 #include "QDmxFTD2XXInterface.h"
 
-#include <memory>
-
 QDmxFTD2XXInterface::QDmxFTD2XXInterface(const QString& serial, const QString& name, const QString &vendor, quint16 VID, quint16 PID, quint32 id) :
     QDmxUsbInterface(serial, name, vendor, VID, PID, id),
     _status(FT_OK),
@@ -15,7 +13,7 @@ QDmxFTD2XXInterface::~QDmxFTD2XXInterface()
         close();
 }
 
-QList<QDmxUsbInterface*> QDmxFTD2XXInterface::interfaces()
+QList<QDmxUsbInterface*> QDmxFTD2XXInterface::interfaces(QList<QDmxUsbInterface *> found)
 {
     QList<QDmxUsbInterface*> r;
 
@@ -31,20 +29,31 @@ QList<QDmxUsbInterface*> QDmxFTD2XXInterface::interfaces()
 
     qDebug() << nbreDev << "devs founds";
 
+    //browse device list
     for(uint i = 0; i < nbreDev; i++)
     {
         QString vendor, description, serial;
         quint16 vid, pid;
 
+        //If it can get info (so if it can work with this app, not belong to another)
         if((status = getInterfaceInfo(i, vendor, description, serial, vid, pid)) != FT_OK)
         {
             qDebug() << Q_FUNC_INFO << errorString(status);
-            return r;
+            continue;
         }
 
         qDebug() << "Dev" << i << ":" << vendor << description << serial << vid << pid;
 
-        r << new QDmxFTD2XXInterface(serial, description, vendor, vid, pid, i);
+        //If it is a valid interface and it is not already found, then add it.
+        if(validInterface(vid, pid))
+        {
+            bool exists = false;
+            for(int i = 0; i < found.length() && !exists; i++)
+                exists |= found[i]->checkInfo(serial, description, vendor);
+
+            if(!exists)
+                r << new QDmxFTD2XXInterface(serial, description, vendor, vid, pid, i);
+        }
     }
 
     return r;
@@ -204,7 +213,7 @@ QByteArray QDmxFTD2XXInterface::read(int size, uchar* buffer)
         return r;
     }
 
-    for(int i = 0; i < bytesRead; i++)
+    for(uint i = 0; i < bytesRead; i++)
         r.append((char)mBuffer[i]);
 
     if(!buffer)

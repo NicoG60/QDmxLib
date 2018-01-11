@@ -68,7 +68,9 @@ public:
      */
     static bool validInterface(quint16 vendor, quint16 product);
 
-    bool checkInfo(QString &serial, QString &name, QString &vendor);
+    bool checkInfo(const QString &serial, const QString &name, const QString &vendor);
+
+    static QList<QDmxUsbInterface*> interfaces(QList<QDmxUsbInterface*> found) { Q_UNUSED(found) return QList<QDmxUsbInterface*>(); }
 
     /************************************************************************
      * DMX/Serial Interface Methods

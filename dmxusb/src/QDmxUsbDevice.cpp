@@ -6,6 +6,9 @@
 #ifdef FTD2XX
 #include "Interfaces/QDmxFTD2XXInterface.h"
 #endif
+#ifdef QTSERIAL
+#include "Interfaces/QDmxQtSerialInterface.h"
+#endif
 
 QDmxUsbDevice::QDmxUsbDevice(QDmxUsbInterface* iface, QObject *parent) :
     QThread(parent),
@@ -24,16 +27,25 @@ QMap<quint32, QDmxUsbDevice *> QDmxUsbDevice::devices()
     QMap<quint32, QDmxUsbDevice*> r;
 
     QList<QDmxUsbInterface*> interfaceList;
-#ifdef LIBFTDI1
-    interfaceList << QDmxFTDIInterface::interfaces();
-#endif
 
 #ifdef FTD2XX
-    interfaceList << QDmxFTD2XXInterface::interfaces();
+    interfaceList << QDmxFTD2XXInterface::interfaces(interfaceList);
 #endif
 
-    foreach (QDmxUsbInterface* iface, interfaceList) {
+#ifdef LIBFTDI1
+    interfaceList << QDmxFTDIInterface::interfaces(interfaceList);
+#endif
+
+#ifdef QTSERIAL
+    interfaceList << QDmxQtSerialInterface::interfaces(interfaceList);
+#endif
+
+    //for each found interface
+    foreach (QDmxUsbInterface* iface, interfaceList)
+    {
         qDebug() << iface->name() << iface->vendorID() << iface->productID();
+
+
     }
 
     return r;
