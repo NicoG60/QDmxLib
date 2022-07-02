@@ -1,0 +1,71 @@
+cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
+
+if(APPLE)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13 CACHE STRING "Minimum OS X deployment version" FORCE)
+    message(STATUS "Deployment Target: ${CMAKE_OSX_DEPLOYMENT_TARGET}")
+endif()
+
+project(QDmxLib VERSION 1.0.0 LANGUAGES C CXX)
+
+if(APPLE)
+    enable_language(OBJCXX)
+endif()
+
+set(QDMXLIB_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+execute_process(
+    COMMAND git rev-parse --short HEAD
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_STRIP_TRAILING_WHITESPACE
+    OUTPUT_VARIABLE GIT_VERSION
+)
+
+if(NOT CMAKE_CXX_STANDARD)
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+
+set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+if(NOT DEFINED QDMXLIB_MASTER_PROJECT)
+    if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+        set(QDMXLIB_MASTER_PROJECT ON)
+    else()
+        set(QDMXLIB_MASTER_PROJECT OFF)
+    endif()
+endif()
+
+find_package(Qt5 COMPONENTS Core REQUIRED)
+find_package(Qt5 COMPONENTS Network REQUIRED)
+find_package(Qt5 COMPONENTS SerialPort)
+
+find_package(LibFTDI1)
+
+option(QDMXLIB_BUILD_TESTS "Build the unit tests"  OFF)
+option(QDMXLIB_INSTALL     "Generate install targets" ${NUMPYCPP_MASTER_PROJECT})
+
+if(${QDMXLIB_BUILD_TESTS})
+    find_package(Qt5 COMPONENTS Test REQUIRED)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+
+set(BUILD_INCLUDE "${QDMXLIB_SOURCE_DIR}/include")
+
+#install var
+set(INCLUDE_DEST "include/qdmxlib-${QDMXLIB_VERSION}")
+set(LIB_DEST "lib/qdmxlib-${QDMXLIB_VERSION}")
+
+# add subdirs
+add_subdirectory(src)
+
+# install
+if(${QDMXLIB_INSTALL})
+    install(FILES qdmxlib-config.cmake DESTINATION ${LIB_DEST})
+    install(EXPORT qdmxlib DESTINATION ${LIB_DEST})
+endif()
