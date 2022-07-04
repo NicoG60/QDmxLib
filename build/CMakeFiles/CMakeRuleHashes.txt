@@ -1,0 +1,4 @@
+# Hashes of file build rules.
+c5d1d5390ca53587316cc5dfbd52ca5f src/CMakeFiles/QDmxLib_autogen
+13e4351ed947233f24c0a8de08e8932f tests/CMakeFiles/artnet_autogen
+1e3d5e20988418de15afbb6a35191991 tests/CMakeFiles/manager_autogen
