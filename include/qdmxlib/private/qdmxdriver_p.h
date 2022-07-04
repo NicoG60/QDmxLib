@@ -20,6 +20,15 @@ public:
     virtual bool loadConfigHook(const QJsonObject& config) { Q_UNUSED(config) return true; }
     virtual bool saveConfigHook(QJsonObject& config) { Q_UNUSED(config) return true; };
 
+    template<class T>
+    QList<QDmxDevice*> convert(const QList<T*>& devices) const
+    {
+        QList<QDmxDevice*> r;
+        for(auto d : devices)
+            r << d;
+        return r;
+    }
+
     QDmxManager* _manager = nullptr;
     bool _enabled = false;
     bool _loaded = false;

@@ -13,6 +13,8 @@ class QUartDriver : public QDmxDriver
 public:
     QUartDriver(QDmxManager* parent = nullptr);
 
+    QString name() const override { return "uart"; }
+
     QList<QDmxDevice*> availableDevices() const override;
 
 protected:

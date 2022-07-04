@@ -25,8 +25,8 @@ set(HEADERS
     ${BUILD_INCLUDE}/qdmxlib/private/qeuroliteusbdmxpro.h
     ${BUILD_INCLUDE}/qdmxlib/private/qnanodmx.h
     ${BUILD_INCLUDE}/qdmxlib/private/qvinceusbdmx.h
-#    ${BUILD_INCLUDE}/qdmxlib/private/quartdriver.h
-#    ${BUILD_INCLUDE}/qdmxlib/private/quartdevice.h
+    ${BUILD_INCLUDE}/qdmxlib/private/quartdriver.h
+    ${BUILD_INCLUDE}/qdmxlib/private/quartdevice.h
     ${BUILD_INCLUDE}/qdmxlib/QDmxManager
     ${BUILD_INCLUDE}/qdmxlib/QDmxDriver
     ${BUILD_INCLUDE}/qdmxlib/QDmxDevice
@@ -61,8 +61,8 @@ set(SOURCES
     dmxusb/qnanodmx.cpp
     dmxusb/qvinceusbdmx.cpp
 
-#    uart/quartdriver.cpp
-#    uart/quartdevice.cpp
+    uart/quartdriver.cpp
+    uart/quartdevice.cpp
 )
 
 add_library(QDmxLib ${HEADERS} ${SOURCES})

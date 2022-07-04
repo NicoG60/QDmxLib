@@ -37,12 +37,8 @@ QDmxUsbDriver::QDmxUsbDriver(QDmxManager* parent) :
 
 QList<QDmxDevice*> QDmxUsbDriver::availableDevices() const
 {
-    QList<QDmxDevice*> r;
-
-    for(auto d : d_func()->_devices)
-        r << d;
-
-    return r;
+    Q_D(const QDmxUsbDriver);
+    return d->convert(d->_devices);
 }
 
 void QDmxUsbDriver::pollDevices(bool preventEmit)

@@ -7,8 +7,9 @@
 #include <qdmxlib/private/qdmxdriver.h>
 #include <qdmxlib/private/qdmxdevice.h>
 #include <qdmxlib/private/qartnetdriver.h>
-#include <qdmxlib/private/qdmxusbdriver.h>
 #include <qdmxlib/private/qe131driver.h>
+#include <qdmxlib/private/qdmxusbdriver.h>
+#include <qdmxlib/private/quartdriver.h>
 
 class QDmxManagerPrivate : public QObjectPrivate
 {
@@ -46,6 +47,7 @@ void QDmxManagerPrivate::createDrivers()
     _allDrivers << new QArtnetDriver(q);
     _allDrivers << new QE131Driver(q);
     _allDrivers << new QDmxUsbDriver(q);
+    _allDrivers << new QUartDriver(q);
 
     for(auto dr : _allDrivers)
     {

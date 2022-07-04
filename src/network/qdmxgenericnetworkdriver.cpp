@@ -10,12 +10,8 @@ QDmxGenericNetworkDriver::QDmxGenericNetworkDriver(QDmxManager *parent) :
 
 QList<QDmxDevice*> QDmxGenericNetworkDriver::availableDevices() const
 {
-    QList<QDmxDevice*> r;
-
-    for(auto d : d_func()->_ifaces)
-        r << d;
-
-    return r;
+    Q_D(const QDmxGenericNetworkDriver);
+    return d->convert(d->_ifaces);
 }
 
 bool QDmxGenericNetworkDriver::loadHook()
