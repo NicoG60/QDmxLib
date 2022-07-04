@@ -2,6 +2,7 @@
 #define QNANODMX_H
 
 #include "qdmxusbinterface.h"
+#include <QMutex>
 
 class QNanoDmx : public QDmxUsbThread, public QDmxUsbInterface
 {

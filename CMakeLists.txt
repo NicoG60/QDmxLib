@@ -44,7 +44,12 @@ find_package(Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt5 COMPONENTS Network REQUIRED)
 find_package(Qt5 COMPONENTS SerialPort)
 
-find_package(LibFTDI1)
+find_package(PkgConfig QUIET)
+
+find_package(LibFTDI1 QUIET)
+if(NOT ${LibFTDI1_FOUND} AND ${PkgConfig_FOUND})
+    pkg_search_module(LibFTDI1 libftdi1)
+endif()
 
 option(QDMXLIB_BUILD_TESTS "Build the unit tests"  OFF)
 option(QDMXLIB_INSTALL     "Generate install targets" ${NUMPYCPP_MASTER_PROJECT})

@@ -8,7 +8,12 @@
 
 #include <unistd.h>
 #include <ftdi.h>
+
+#ifdef Q_OS_LINUX
+#include <libusb-1.0/libusb.h>
+#else
 #include <libusb.h>
+#endif
 
 class QDmxFtdiDevicePrivate : public QDmxUsbDevicePrivate
 {

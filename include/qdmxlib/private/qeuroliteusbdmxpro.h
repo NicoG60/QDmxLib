@@ -2,6 +2,7 @@
 #define QEUROLITEUSBDMXPRO_H
 
 #include "qdmxusbinterface.h"
+#include <QMutex>
 
 class QEuroliteUsbDmxPro : public QDmxUsbThread, public QDmxUsbInterface
 {
