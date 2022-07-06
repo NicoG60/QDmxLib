@@ -40,12 +40,14 @@ if(NOT DEFINED QDMXLIB_MASTER_PROJECT)
     endif()
 endif()
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
-set(Qt "Qt${QT_VERSION_MAJOR}")
+if(NOT TARGET Qt::Core)
+    find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
+    set(Qt "Qt${QT_VERSION_MAJOR}")
 
-find_package(${Qt} COMPONENTS Core REQUIRED)
-find_package(${Qt} COMPONENTS Network REQUIRED)
-find_package(${Qt} COMPONENTS SerialPort)
+    find_package(${Qt} COMPONENTS Core REQUIRED)
+    find_package(${Qt} COMPONENTS Network REQUIRED)
+    find_package(${Qt} COMPONENTS SerialPort)
+endif()
 
 find_package(PkgConfig QUIET)
 
