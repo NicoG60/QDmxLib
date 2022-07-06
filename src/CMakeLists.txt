@@ -25,8 +25,6 @@ set(HEADERS
     ${BUILD_INCLUDE}/qdmxlib/private/qeuroliteusbdmxpro.h
     ${BUILD_INCLUDE}/qdmxlib/private/qnanodmx.h
     ${BUILD_INCLUDE}/qdmxlib/private/qvinceusbdmx.h
-    ${BUILD_INCLUDE}/qdmxlib/private/quartdriver.h
-    ${BUILD_INCLUDE}/qdmxlib/private/quartdevice.h
     ${BUILD_INCLUDE}/qdmxlib/QDmxManager
     ${BUILD_INCLUDE}/qdmxlib/QDmxDriver
     ${BUILD_INCLUDE}/qdmxlib/QDmxDevice
@@ -34,6 +32,8 @@ set(HEADERS
     ${BUILD_INCLUDE}/qdmxlib/QArtnetDevice
     ${BUILD_INCLUDE}/qdmxlib/QE131Driver
     ${BUILD_INCLUDE}/qdmxlib/QE131Device
+    ${BUILD_INCLUDE}/qdmxlib/QDmxUsbDriver
+    ${BUILD_INCLUDE}/qdmxlib/QDmxUsbDevice
 )
 
 set(SOURCES
@@ -60,17 +60,28 @@ set(SOURCES
     dmxusb/qeuroliteusbdmxpro.cpp
     dmxusb/qnanodmx.cpp
     dmxusb/qvinceusbdmx.cpp
-
-    uart/quartdriver.cpp
-    uart/quartdevice.cpp
 )
+
+if(TARGET Qt::SerialPort)
+    list(APPEND SOURCES
+        uart/quartdriver.cpp
+        uart/quartdevice.cpp
+    )
+
+    list(APPEND HEADERS
+        ${BUILD_INCLUDE}/qdmxlib/private/quartdriver.h
+        ${BUILD_INCLUDE}/qdmxlib/private/quartdevice.h
+        ${BUILD_INCLUDE}/qdmxlib/QUartDriver
+        ${BUILD_INCLUDE}/qdmxlib/QUartDevice
+    )
+endif()
 
 add_library(QDmxLib ${HEADERS} ${SOURCES})
 target_compile_definitions(QDmxLib PRIVATE QDMXLIB_LIBRARY)
 target_compile_definitions(QDmxLib PRIVATE SOFT_VERSION=${PROJECT_VERSION})
 target_compile_definitions(QDmxLib PRIVATE GIT_VERSION=${GIT_VERSION})
-target_link_libraries(QDmxLib PUBLIC Qt5::Core Qt5::Network)
-target_include_directories(QDmxLib PRIVATE ${Qt5Core_PRIVATE_INCLUDE_DIRS})
+target_link_libraries(QDmxLib PUBLIC Qt::Core Qt::Network)
+target_include_directories(QDmxLib PRIVATE ${${Qt}Core_PRIVATE_INCLUDE_DIRS})
 
 if(${LibFTDI1_FOUND})
     message(STATUS "Build with FTDI support")
@@ -80,10 +91,10 @@ if(${LibFTDI1_FOUND})
     target_include_directories(QDmxLib PUBLIC ${LIBFTDI_INCLUDE_DIRS} "/usr/local/include/libusb-1.0")
 endif()
 
-if(TARGET Qt5::SerialPort)
+if(TARGET Qt::SerialPort)
     message(STATUS "Build with Qt Serial support")
     target_compile_definitions(QDmxLib PUBLIC QDMXLIB_HAS_QTSERIAL)
-    target_link_libraries(QDmxLib PUBLIC Qt5::SerialPort)
+    target_link_libraries(QDmxLib PUBLIC Qt::SerialPort)
 endif()
 
 target_include_directories(

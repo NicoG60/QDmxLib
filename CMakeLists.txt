@@ -40,9 +40,12 @@ if(NOT DEFINED QDMXLIB_MASTER_PROJECT)
     endif()
 endif()
 
-find_package(Qt5 COMPONENTS Core REQUIRED)
-find_package(Qt5 COMPONENTS Network REQUIRED)
-find_package(Qt5 COMPONENTS SerialPort)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
+set(Qt "Qt${QT_VERSION_MAJOR}")
+
+find_package(${Qt} COMPONENTS Core REQUIRED)
+find_package(${Qt} COMPONENTS Network REQUIRED)
+find_package(${Qt} COMPONENTS SerialPort)
 
 find_package(PkgConfig QUIET)
 
@@ -55,7 +58,7 @@ option(QDMXLIB_BUILD_TESTS "Build the unit tests"  OFF)
 option(QDMXLIB_INSTALL     "Generate install targets" ${NUMPYCPP_MASTER_PROJECT})
 
 if(${QDMXLIB_BUILD_TESTS})
-    find_package(Qt5 COMPONENTS Test REQUIRED)
+    find_package(${Qt} COMPONENTS Test REQUIRED)
     enable_testing()
     add_subdirectory(tests)
 endif()

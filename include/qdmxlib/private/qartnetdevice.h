@@ -30,6 +30,8 @@ protected slots:
     void sendDmx();
     void sendPollReply();
 
+    void checkSubscriptions();
+
 protected:
     bool startHook() override;
     bool stopHook() override;

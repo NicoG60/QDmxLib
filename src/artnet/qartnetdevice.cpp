@@ -76,8 +76,6 @@ public:
     bool extractPollInfo(const QByteArray& data, QString& shortName, QString& longName);
     bool extractDmxData(const QByteArray& data, const QString& ifaceName, quint8& port);
 
-    void checkSubscriptions();
-
     QUdpSocket* _socket = nullptr;
 
     QTimer _dmxTimer;
@@ -379,17 +377,6 @@ bool QArtnetDevicePrivate::extractDmxData(const QByteArray& data, const QString&
     return true;
 }
 
-void QArtnetDevicePrivate::checkSubscriptions()
-{
-    for(auto it = _subscribedNodes.begin(); it != _subscribedNodes.end();)
-    {
-        if(it->updateTimer.elapsed() >= 10000)
-            it = _subscribedNodes.erase(it);
-        else
-            ++it;
-    }
-}
-
 QArtnetDevice::QArtnetDevice(const QNetworkInterface& interface,
                              const QNetworkAddressEntry& entry,
                              QDmxGenericNetworkDriver* parent) :
@@ -399,8 +386,8 @@ QArtnetDevice::QArtnetDevice(const QNetworkInterface& interface,
     connect(&d->_dmxTimer, &QTimer::timeout,
             this, &QArtnetDevice::sendDmx);
 
-    QObjectPrivate::connect(&d->_subscriberTimer, &QTimer::timeout,
-                            d, &QArtnetDevicePrivate::checkSubscriptions);
+    connect(&d->_subscriberTimer, &QTimer::timeout,
+            this, &QArtnetDevice::checkSubscriptions);
 }
 
 void QArtnetDevice::setData(quint8 port, quint16 channel, quint8 data)
@@ -493,6 +480,18 @@ void QArtnetDevice::sendPollReply()
 {
     Q_D(QArtnetDevice);
     d->_socket->writeDatagram(d->artnetPollReply(), d->_broadcast, artnet_port);
+}
+
+void QArtnetDevice::checkSubscriptions()
+{
+    Q_D(QArtnetDevice);
+    for(auto it = d->_subscribedNodes.begin(); it != d->_subscribedNodes.end();)
+    {
+        if(it->updateTimer.elapsed() >= 10000)
+            it = d->_subscribedNodes.erase(it);
+        else
+            ++it;
+    }
 }
 
 bool QArtnetDevice::startHook()
