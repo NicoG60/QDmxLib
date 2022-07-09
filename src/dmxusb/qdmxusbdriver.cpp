@@ -29,7 +29,7 @@ QDmxUsbDriver::QDmxUsbDriver(QDmxManager* parent) :
 {
     Q_D(QDmxUsbDriver);
     d->_pollTimer.setInterval(2000);
-    d->_pollTimer.setTimerType(Qt::CoarseTimer);
+    d->_pollTimer.setTimerType(Qt::VeryCoarseTimer);
 
     connect(&d->_pollTimer, SIGNAL(timeout()),
             this, SLOT(pollDevices(bool)));

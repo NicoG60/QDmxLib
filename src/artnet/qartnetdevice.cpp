@@ -102,10 +102,10 @@ QArtnetDevicePrivate::QArtnetDevicePrivate(const QNetworkInterface& interface,
         c = 1;
 
     _dmxTimer.setInterval(1000);
-    _dmxTimer.setTimerType(Qt::CoarseTimer);
+    _dmxTimer.setTimerType(Qt::VeryCoarseTimer);
 
     _subscriberTimer.setInterval(10000);
-    _subscriberTimer.setTimerType(Qt::CoarseTimer);
+    _subscriberTimer.setTimerType(Qt::VeryCoarseTimer);
 }
 
 QHostAddress QArtnetDevicePrivate::preferedArtnetAddress() const
