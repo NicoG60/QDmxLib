@@ -82,6 +82,7 @@ public:
 
     void setMergeType(quint8 universe, MergeType type);
 
+    bool isPatched(quint8 universe);
     bool isPatched(QDmxDevice* device, quint8 port);
     bool isPatched(QDmxDevice* device);
     bool isPatched(const QString& driver, const QString& name, quint8 port);
@@ -89,6 +90,7 @@ public:
     bool isPatched(const QString& driver);
     bool isPatched(QDmxDriver* driver);
 
+    bool isPatched(PortType portType, quint8 universe);
     bool isPatched(PortType portType, QDmxDevice* device, quint8 port);
     bool isPatched(PortType portType, QDmxDevice* device);
     bool isPatched(PortType portType, const QString& driver, const QString& name, quint8 port);

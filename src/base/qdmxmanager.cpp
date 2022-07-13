@@ -311,6 +311,11 @@ void QDmxManager::setMergeType(quint8 universe, MergeType type)
     d->_mergeType[universe] = type;
 }
 
+bool QDmxManager::isPatched(quint8 universe)
+{
+    return isPatched(Input, universe) || isPatched(Output, universe);
+}
+
 bool QDmxManager::isPatched(QDmxDevice* device, quint8 port)
 {
     return isPatched(Input, device, port) || isPatched(Output, device, port);
@@ -352,6 +357,13 @@ bool QDmxManager::isPatched(QDmxDriver* driver)
 {
     auto devs = driver->availableDevices();
     return std::any_of(devs.begin(), devs.end(), [this](auto* dev){ return isPatched(dev); });
+}
+
+bool QDmxManager::isPatched(PortType portType, quint8 universe)
+{
+    Q_D(QDmxManager);
+    const auto& patch = portType == Input ? d->_inputPatch : d->_outputPatch;
+    return patch.contains(universe);
 }
 
 bool QDmxManager::isPatched(PortType portType, QDmxDevice* device, quint8 port)
