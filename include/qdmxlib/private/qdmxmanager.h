@@ -128,6 +128,7 @@ protected slots:
     void deviceInputDataChanged(quint8 port, const QByteArray& data);
 
 signals:
+    void patchChanged(PortType portType);
     void availableDevicesChanged();
     void inputDataChanged(quint8 universe, const QByteArray& data);
 };

@@ -287,6 +287,8 @@ bool QDmxManager::patch(PortType portType, QDmxDevice* device, quint8 port, quin
     else
         device->setData(port, data[universe]);
 
+    emit patchChanged(portType);
+
     return true;
 }
 
@@ -586,6 +588,8 @@ bool QDmxManager::unpatch(PortType portType, quint8 universe)
             d->stop();
     }
 
+    emit patchChanged(portType);
+
     return true;
 }
 
@@ -622,6 +626,8 @@ bool QDmxManager::unpatch(PortType portType, QDmxDevice* device, quint8 port)
         if(portType == Input)
             d->_mergeType.remove(universe);
     }
+
+    emit patchChanged(portType);
 
     return true;
 }
@@ -664,6 +670,8 @@ bool QDmxManager::unpatch(PortType portType, QDmxDevice* device)
                 d->_mergeType.remove(universe);
         }
     }
+
+    emit patchChanged(portType);
 
     return true;
 }
