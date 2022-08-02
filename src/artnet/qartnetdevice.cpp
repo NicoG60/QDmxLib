@@ -332,8 +332,19 @@ bool QArtnetDevicePrivate::extractPollInfo(const QByteArray& data,
         }
     }
 
-    shortName = data.mid(26, 18).simplified();
-    longName  = data.mid(44, 64).simplified();
+    QByteArray rawShort = data.mid(26, 18).simplified();
+    QByteArray rawLong  = data.mid(44, 64).simplified();
+
+    int i = rawShort.indexOf("\x00");
+    if(i != -1)
+        rawShort = rawShort.left(i);
+
+    i = rawLong.indexOf("\x00");
+    if(i != -1)
+        rawLong = rawLong.left(i);
+
+    shortName = rawShort;
+    longName  = rawLong;
 
     return true;
 }
