@@ -175,6 +175,15 @@ bool QDmxManager::teardown()
     qDebug() << "[qdmxlib] teardown.";
 
     bool success = true;
+
+    auto inputUniverse = d->_inputPatch.keys();
+    for(quint8 u : qAsConst(inputUniverse))
+        success &= unpatch(Input, u);
+
+    auto outputUniverse = d->_outputPatch.keys();
+    for(quint8 u : qAsConst(outputUniverse))
+        success &= unpatch(Output, u);
+
     for(auto d : qAsConst(d->_allDrivers))
     {
         if(d->isLoaded())
@@ -750,13 +759,14 @@ bool QDmxManager::writeData(quint8 universe, quint16 channel, quint8 data)
     for(const auto& p : d->_outputPatch.values(universe))
         p.device->setData(p.port, channel, data);
 
+    emit outputDataChanged(universe, d->_outputData[universe]);
     return true;
 }
 
 bool QDmxManager::writeData(quint8 universe, quint16 channel, const QByteArray& data)
 {
     Q_D(QDmxManager);
-    Q_ASSERT(channel + data.size() < 512);
+    Q_ASSERT(channel + data.size() <= 512);
 
     if(!d->_outputData.contains(universe))
     {
@@ -768,6 +778,7 @@ bool QDmxManager::writeData(quint8 universe, quint16 channel, const QByteArray& 
     for(const auto& p : d->_outputPatch.values(universe))
         p.device->setData(p.port, channel, data);
 
+    emit outputDataChanged(universe, d->_outputData[universe]);
     return true;
 }
 

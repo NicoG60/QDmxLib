@@ -131,6 +131,7 @@ signals:
     void patchChanged(QDmxManager::PortType portType);
     void availableDevicesChanged();
     void inputDataChanged(quint8 universe, const QByteArray& data);
+    void outputDataChanged(quint8 universe, const QByteArray& data);
 };
 
 #endif // QDMXMANAGER_H
