@@ -1,11 +1,10 @@
 #ifndef QDMXDRIVER_P_H
 #define QDMXDRIVER_P_H
 
-#include <private/qobject_p.h>
 #include <QJsonObject>
 #include "qdmxdriver.h"
 
-class QDmxDriverPrivate : public QObjectPrivate
+class QDmxDriverPrivate
 {
     Q_DECLARE_PUBLIC(QDmxDriver);
 
@@ -28,6 +27,8 @@ public:
             r << d;
         return r;
     }
+
+    QDmxDriver* q_ptr = nullptr;
 
     QDmxManager* _manager = nullptr;
     bool _enabled = false;

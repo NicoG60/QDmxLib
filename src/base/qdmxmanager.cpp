@@ -1,5 +1,4 @@
 #include <qdmxlib/private/qdmxmanager.h>
-#include <private/qobject_p.h>
 
 #include <QCoreApplication>
 #include <QMetaEnum>
@@ -11,7 +10,7 @@
 #include <qdmxlib/private/qdmxusbdriver.h>
 #include <qdmxlib/private/quartdriver.h>
 
-class QDmxManagerPrivate : public QObjectPrivate
+class QDmxManagerPrivate
 {
     Q_DECLARE_PUBLIC(QDmxManager)
 
@@ -29,6 +28,8 @@ public:
     bool hasPatch(const Patch& patch, QDmxDevice* device);
 
     void merge(QByteArray& dst, const QByteArray& src, QDmxManager::MergeType type);
+
+    QDmxManager* q_ptr = nullptr;
 
     QString _configLocation;
     QList<QDmxDriver*> _allDrivers;
@@ -138,9 +139,12 @@ void QDmxManagerPrivate::merge(QByteArray& dst, const QByteArray& src, QDmxManag
 }
 
 QDmxManager::QDmxManager(QObject* parent) :
-    QObject(*new QDmxManagerPrivate(), parent)
+    QObject(parent),
+    d_ptr(new QDmxManagerPrivate())
 {
-    d_func()->createDrivers();
+    Q_D(QDmxManager);
+    d->q_ptr = this;
+    d->createDrivers();
 }
 
 QDmxManager::~QDmxManager()

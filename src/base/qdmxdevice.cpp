@@ -54,8 +54,10 @@ void QDmxDevicePrivate::updateBuffer(QByteArray& buffer, quint8 port, const QByt
 }
 
 QDmxDevice::QDmxDevice(QDmxDriver* parent) :
-    QObject(*new QDmxDevicePrivate(parent), parent)
+    QObject(parent),
+    d_ptr(new QDmxDevicePrivate(parent))
 {
+    d_func()->q_ptr = this;
 }
 
 QDmxDriver* QDmxDevice::driver() const
@@ -157,8 +159,10 @@ void QDmxDevice::setData(quint8 port, const QByteArray& data)
 }
 
 QDmxDevice::QDmxDevice(QDmxDevicePrivate& d, QDmxDriver* parent) :
-    QObject(d, parent)
+    QObject(parent),
+    d_ptr(&d)
 {
+    d.q_ptr = this;
 }
 
 QDmxDummyDevice::QDmxDummyDevice(QDmxDriver* parent) :

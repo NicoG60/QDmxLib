@@ -85,8 +85,10 @@ QString QDmxDriverPrivate::configPath() const
 }
 
 QDmxDriver::QDmxDriver(QDmxManager* parent) :
-    QObject(*new QDmxDriverPrivate(parent), parent)
+    QObject(parent),
+    d_ptr(new QDmxDriverPrivate(parent))
 {
+    d_func()->q_ptr = this;
 }
 
 QDmxManager* QDmxDriver::manager() const
@@ -192,8 +194,10 @@ bool QDmxDriver::unload()
 }
 
 QDmxDriver::QDmxDriver(QDmxDriverPrivate& d, QDmxManager* parent) :
-    QObject(d, parent)
+    QObject(parent),
+    d_ptr(&d)
 {
+    d.q_ptr = this;
 }
 
 

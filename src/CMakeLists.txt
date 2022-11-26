@@ -81,7 +81,6 @@ target_compile_definitions(QDmxLib PRIVATE QDMXLIB_LIBRARY)
 target_compile_definitions(QDmxLib PRIVATE SOFT_VERSION=${PROJECT_VERSION})
 target_compile_definitions(QDmxLib PRIVATE GIT_VERSION=${GIT_VERSION})
 target_link_libraries(QDmxLib PUBLIC Qt::Core Qt::Network)
-target_include_directories(QDmxLib PRIVATE ${${Qt}Core_PRIVATE_INCLUDE_DIRS})
 
 if(${LibFTDI1_FOUND})
     message(STATUS "Build with FTDI support")

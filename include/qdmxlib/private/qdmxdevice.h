@@ -49,6 +49,8 @@ protected:
 
     virtual bool startHook() { return true; }
     virtual bool stopHook() { return true; }
+
+    QScopedPointer<QDmxDevicePrivate> d_ptr;
 };
 
 class QDmxDummyDevicePrivate;

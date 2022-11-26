@@ -1,14 +1,13 @@
 #ifndef QDMXDEVICE_P_H
 #define QDMXDEVICE_P_H
 
-#include <private/qobject_p.h>
 #include <QMutex>
 #include "qdmxdevice.h"
 
 #define Q_DECLARE_DMX_DRIVER(Class) Class* driver() const { return static_cast<Class*>(_driver); }
 #define Q_DR(Class) Class* dr = driver();
 
-class QDmxDevicePrivate : public QObjectPrivate
+class QDmxDevicePrivate
 {
     Q_DECLARE_PUBLIC(QDmxDevice);
 
@@ -23,6 +22,8 @@ public:
     void updateBuffer(QByteArray& buffer, quint8 port, quint16 channel, quint8 data);
     void updateBuffer(QByteArray& buffer, quint8 port, quint16 channel, const QByteArray& data);
     void updateBuffer(QByteArray& buffer, quint8 port, const QByteArray& data);
+
+    QDmxDevice* q_ptr = nullptr;
 
     QDmxDriver* _driver = nullptr;
     bool _started = false;

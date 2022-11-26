@@ -471,6 +471,10 @@ void QArtnetDevice::socketError(QAbstractSocket::SocketError socketError)
 void QArtnetDevice::sendDmx()
 {
     Q_D(QArtnetDevice);
+
+    if(!isStarted())
+        return;
+
     for(quint8 p = 0; p < artnet_universe_count; p++)
     {
         for(const auto& nodes : d->_subscribedNodes.values(p))
@@ -481,6 +485,10 @@ void QArtnetDevice::sendDmx()
 void QArtnetDevice::sendPollReply()
 {
     Q_D(QArtnetDevice);
+
+    if(!isStarted())
+        return;
+
     qDebug() << "[artnet] Sending poll reply";
     d->_socket->writeDatagram(d->artnetPollReply(), d->_broadcast, artnet_port);
 }

@@ -132,6 +132,9 @@ signals:
     void availableDevicesChanged();
     void inputDataChanged(quint8 universe, const QByteArray& data);
     void outputDataChanged(quint8 universe, const QByteArray& data);
+
+protected:
+    QScopedPointer<QDmxManagerPrivate> d_ptr;
 };
 
 #endif // QDMXMANAGER_H

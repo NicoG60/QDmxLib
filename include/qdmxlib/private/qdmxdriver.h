@@ -40,6 +40,8 @@ signals:
 protected:
     QDmxDriver(QDmxDriverPrivate& d, QDmxManager* parent);
 
+    QScopedPointer<QDmxDriverPrivate> d_ptr;
+
     virtual bool loadHook() { return true; }
     virtual bool unloadHook() { return true; }
 };
