@@ -13,6 +13,7 @@ class QDmxDevicePrivate
 
 public:
     QDmxDevicePrivate(QDmxDriver* driver) : _driver(driver) {};
+    virtual ~QDmxDevicePrivate() = default;
 
     void initBuffers();
     void clearBuffers();

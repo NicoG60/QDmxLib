@@ -91,6 +91,11 @@ QDmxDriver::QDmxDriver(QDmxManager* parent) :
     d_func()->q_ptr = this;
 }
 
+QDmxDriver::~QDmxDriver()
+{
+
+}
+
 QDmxManager* QDmxDriver::manager() const
 {
     return d_func()->_manager;

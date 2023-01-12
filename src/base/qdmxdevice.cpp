@@ -60,6 +60,11 @@ QDmxDevice::QDmxDevice(QDmxDriver* parent) :
     d_func()->q_ptr = this;
 }
 
+QDmxDevice::~QDmxDevice()
+{
+
+}
+
 QDmxDriver* QDmxDevice::driver() const
 {
     return d_func()->_driver;

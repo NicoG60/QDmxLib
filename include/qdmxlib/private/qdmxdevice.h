@@ -17,7 +17,7 @@ class Q_DECL_EXPORT QDmxDevice : public QObject
 
 public:
     QDmxDevice(QDmxDriver* parent = nullptr);
-    ~QDmxDevice() override = default;
+    ~QDmxDevice() override;
 
     virtual QString name() const { return "dummy"; }
 
@@ -50,7 +50,7 @@ protected:
     virtual bool startHook() { return true; }
     virtual bool stopHook() { return true; }
 
-    QScopedPointer<QDmxDevicePrivate> d_ptr;
+    std::unique_ptr<QDmxDevicePrivate> d_ptr;
 };
 
 class QDmxDummyDevicePrivate;

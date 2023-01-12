@@ -14,7 +14,7 @@ class Q_DECL_EXPORT QDmxDriver : public QObject
 
 public:
     QDmxDriver(QDmxManager* parent = nullptr);
-    ~QDmxDriver() override = default;
+    ~QDmxDriver() override;
 
     virtual QString name() const = 0;
 
@@ -40,7 +40,7 @@ signals:
 protected:
     QDmxDriver(QDmxDriverPrivate& d, QDmxManager* parent);
 
-    QScopedPointer<QDmxDriverPrivate> d_ptr;
+    std::unique_ptr<QDmxDriverPrivate> d_ptr;
 
     virtual bool loadHook() { return true; }
     virtual bool unloadHook() { return true; }

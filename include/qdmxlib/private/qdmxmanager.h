@@ -134,7 +134,7 @@ signals:
     void outputDataChanged(quint8 universe, const QByteArray& data);
 
 protected:
-    QScopedPointer<QDmxManagerPrivate> d_ptr;
+    std::unique_ptr<QDmxManagerPrivate> d_ptr;
 };
 
 #endif // QDMXMANAGER_H
