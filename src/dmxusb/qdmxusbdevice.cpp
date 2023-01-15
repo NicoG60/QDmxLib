@@ -9,22 +9,6 @@
 #include <qdmxlib/private/qnanodmx.h>
 #include <qdmxlib/private/qvinceusbdmx.h>
 
-namespace dmxusb_details
-{
-
-bool checkIds(quint16 vid, quint16 pid)
-{
-    if(vid != ftdi_vid && vid != atmel_vid && vid != microchip_vid)
-        return false;
-
-    if(pid != ftdi_pid && pid != dmx4all_pid && pid != nanodmx_pid && pid != eurolite_pid && pid != electrotas_pid)
-        return false;
-
-    return true;
-}
-
-}
-
 void QDmxUsbDevicePrivate::init()
 {
     Q_Q(QDmxUsbDevice);
@@ -40,9 +24,9 @@ void QDmxUsbDevicePrivate::init()
         /** Check if the device responds to label 77 and 78, so it might be a DMXking adapter */
         int ESTAID = 0;
         int DEVID = 0;
-        QString manName = q->readLabel(dmxusb_details::dmxking_usb_device_manufacturer, ESTAID);
+        QString manName = _backend->readLabel(dmxusb_details::dmxking_usb_device_manufacturer, ESTAID);
         qDebug() << "--------> Device Manufacturer: " << manName;
-        QString devName = q->readLabel(dmxusb_details::dmxking_usb_device_name, DEVID);
+        QString devName = _backend->readLabel(dmxusb_details::dmxking_usb_device_name, DEVID);
         qDebug() << "--------> Device Name: " << devName;
         qDebug() << "--------> ESTA Code: " << QString::number(ESTAID, 16) << ", Device ID: " << QString::number(DEVID, 16);
         if (ESTAID == dmxusb_details::dmxking_esta_id)
@@ -128,8 +112,9 @@ QDmxUsbDevice::QDmxUsbDevice(const QString& name,
                              const QString& vendor,
                              quint16 vid,
                              quint16 pid,
+                             QDmxUsbDevice::Backend backend,
                              QDmxUsbDriver* parent) :
-    QDmxDevice(*new QDmxUsbDevicePrivate(name, serial, vendor, vid, pid, parent), parent)
+    QDmxDevice(*new QDmxUsbDevicePrivate(name, serial, vendor, vid, pid, backend, parent), parent)
 {
     d_func()->init();
 }
@@ -142,6 +127,11 @@ QDmxUsbDevice::~QDmxUsbDevice()
         d->_iface->close();
 
     delete d->_iface;
+}
+
+QDmxUsbDevice::Backend QDmxUsbDevice::backend() const
+{
+    return d_func()->_backend->backend();
 }
 
 QString QDmxUsbDevice::name() const

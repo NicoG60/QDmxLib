@@ -1,29 +1,30 @@
-#ifndef QDMXFTDIDEVICE_H
-#define QDMXFTDIDEVICE_H
+#ifndef QDMXFTDIBACKEND_H
+#define QDMXFTDIBACKEND_H
 
-#include "qdmxusbdevice.h"
+#include "qdmxusbbackend_p.h"
 
-class QDmxFtdiDevicePrivate;
-class QDmxFtdiDevice : public QDmxUsbDevice
+#include <unistd.h>
+#include <ftdi.h>
+
+#ifdef Q_OS_LINUX
+#include <libusb-1.0/libusb.h>
+#else
+#include <libusb.h>
+#endif
+
+class QDmxUsbDriver;
+class QDmxUsbDevice;
+
+class QDmxFTDIBackend : public QDmxUsbBackend
 {
-    Q_OBJECT
-
-    Q_DECLARE_PRIVATE(QDmxFtdiDevice)
-
 public:
-    QDmxFtdiDevice(const QString& name,
-                   const QString& serial,
-                   const QString& vendor,
-                   quint16 vid,
-                   quint16 pid,
-                   QDmxUsbDriver* parent = nullptr);
-    ~QDmxFtdiDevice() override = default;
+    QDmxFTDIBackend(QDmxUsbDevicePrivate* device);
+    ~QDmxFTDIBackend() override;
 
-    Backend backend() const override { return LibFTDI; }
+    inline QDmxUsbDevice::Backend backend() const override { return QDmxUsbDevice::LibFTDI; }
 
     static bool pollDevices(QList<QDmxUsbDevice*>& devices, QDmxUsbDriver* parent);
 
-protected:
     QByteArray readLabel(quint8 label, int& code) override;
 
     bool open() override;
@@ -41,6 +42,10 @@ protected:
     bool write(const QByteArray& data) override;
     QByteArray read(int size = -1) override;
     quint8 readByte(bool* ok = nullptr) override;
+
+protected:
+    ftdi_context* _context = nullptr;
+    quint8 _latency = 16;
 };
 
-#endif // QDMXFTDIDEVICE_H
+#endif // QDMXFTDIBACKEND_H
