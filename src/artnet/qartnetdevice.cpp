@@ -119,8 +119,8 @@ QByteArray QArtnetDevicePrivate::artnetHeader(quint16 opcode)
     data.append('\x00');
 
     // opcode
-    data.append((opcode >> 8) & 0x00FF);
     data.append(opcode & 0x00FF);
+    data.append((opcode >> 8) & 0x00FF);
 
     if(opcode == artnet_pollreply_opcode)
     {
@@ -332,8 +332,8 @@ bool QArtnetDevicePrivate::extractPollInfo(const QByteArray& data,
         }
     }
 
-    shortName = data.mid(26, 18).simplified();
-    longName  = data.mid(44, 64).simplified();
+    shortName = QString::fromLocal8Bit(data.mid(26, 18).data());
+    longName  = QString::fromLocal8Bit(data.mid(44, 64).data());
 
     return true;
 }
@@ -431,6 +431,7 @@ void QArtnetDevice::readDatagram()
                 {
                 case artnet_poll_opcode:
                 {
+                    qDebug() << "[artnet] Received a Poll from" << senderAddress.toString();
                     int delay = QRandomGenerator::system()->bounded(0, 1000);
                     QTimer::singleShot(delay, this, &QArtnetDevice::sendPollReply);
                     break;
@@ -454,6 +455,7 @@ void QArtnetDevice::readDatagram()
 
                 default:
                     qDebug() << "[artnet] Received an unsupported opcode:" << code;
+                    qDebug() << "[artnet]" << rawData;
                     break;
                 }
             }
@@ -469,6 +471,10 @@ void QArtnetDevice::socketError(QAbstractSocket::SocketError socketError)
 void QArtnetDevice::sendDmx()
 {
     Q_D(QArtnetDevice);
+
+    if(!isStarted())
+        return;
+
     for(quint8 p = 0; p < artnet_universe_count; p++)
     {
         for(const auto& nodes : d->_subscribedNodes.values(p))
@@ -479,6 +485,11 @@ void QArtnetDevice::sendDmx()
 void QArtnetDevice::sendPollReply()
 {
     Q_D(QArtnetDevice);
+
+    if(!isStarted())
+        return;
+
+    qDebug() << "[artnet] Sending poll reply";
     d->_socket->writeDatagram(d->artnetPollReply(), d->_broadcast, artnet_port);
 }
 

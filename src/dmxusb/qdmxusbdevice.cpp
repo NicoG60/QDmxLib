@@ -122,10 +122,6 @@ QDmxUsbDevice::QDmxUsbDevice(const QString& name,
 QDmxUsbDevice::~QDmxUsbDevice()
 {
     Q_D(QDmxUsbDevice);
-
-    if(d->_iface->isOpen())
-        d->_iface->close();
-
     delete d->_iface;
 }
 

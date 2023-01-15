@@ -1,10 +1,5 @@
 cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 
-if(APPLE)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.13 CACHE STRING "Minimum OS X deployment version" FORCE)
-    message(STATUS "Deployment Target: ${CMAKE_OSX_DEPLOYMENT_TARGET}")
-endif()
-
 project(QDmxLib VERSION 1.0.0 LANGUAGES C CXX)
 
 if(APPLE)

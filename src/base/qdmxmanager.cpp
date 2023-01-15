@@ -1,5 +1,4 @@
 #include <qdmxlib/private/qdmxmanager.h>
-#include <private/qobject_p.h>
 
 #include <QCoreApplication>
 #include <QMetaEnum>
@@ -11,7 +10,7 @@
 #include <qdmxlib/private/qdmxusbdriver.h>
 #include <qdmxlib/private/quartdriver.h>
 
-class QDmxManagerPrivate : public QObjectPrivate
+class QDmxManagerPrivate
 {
     Q_DECLARE_PUBLIC(QDmxManager)
 
@@ -29,6 +28,8 @@ public:
     bool hasPatch(const Patch& patch, QDmxDevice* device);
 
     void merge(QByteArray& dst, const QByteArray& src, QDmxManager::MergeType type);
+
+    QDmxManager* q_ptr = nullptr;
 
     QString _configLocation;
     QList<QDmxDriver*> _allDrivers;
@@ -138,9 +139,12 @@ void QDmxManagerPrivate::merge(QByteArray& dst, const QByteArray& src, QDmxManag
 }
 
 QDmxManager::QDmxManager(QObject* parent) :
-    QObject(*new QDmxManagerPrivate(), parent)
+    QObject(parent),
+    d_ptr(new QDmxManagerPrivate())
 {
-    d_func()->createDrivers();
+    Q_D(QDmxManager);
+    d->q_ptr = this;
+    d->createDrivers();
 }
 
 QDmxManager::~QDmxManager()
@@ -175,6 +179,15 @@ bool QDmxManager::teardown()
     qDebug() << "[qdmxlib] teardown.";
 
     bool success = true;
+
+    auto inputUniverse = d->_inputPatch.keys();
+    for(quint8 u : qAsConst(inputUniverse))
+        success &= unpatch(Input, u);
+
+    auto outputUniverse = d->_outputPatch.keys();
+    for(quint8 u : qAsConst(outputUniverse))
+        success &= unpatch(Output, u);
+
     for(auto d : qAsConst(d->_allDrivers))
     {
         if(d->isLoaded())
@@ -286,6 +299,8 @@ bool QDmxManager::patch(PortType portType, QDmxDevice* device, quint8 port, quin
         d->merge(data[universe], device->readInputData(port), type);
     else
         device->setData(port, data[universe]);
+
+    emit patchChanged(portType);
 
     return true;
 }
@@ -586,6 +601,8 @@ bool QDmxManager::unpatch(PortType portType, quint8 universe)
             d->stop();
     }
 
+    emit patchChanged(portType);
+
     return true;
 }
 
@@ -622,6 +639,8 @@ bool QDmxManager::unpatch(PortType portType, QDmxDevice* device, quint8 port)
         if(portType == Input)
             d->_mergeType.remove(universe);
     }
+
+    emit patchChanged(portType);
 
     return true;
 }
@@ -664,6 +683,8 @@ bool QDmxManager::unpatch(PortType portType, QDmxDevice* device)
                 d->_mergeType.remove(universe);
         }
     }
+
+    emit patchChanged(portType);
 
     return true;
 }
@@ -742,13 +763,14 @@ bool QDmxManager::writeData(quint8 universe, quint16 channel, quint8 data)
     for(const auto& p : d->_outputPatch.values(universe))
         p.device->setData(p.port, channel, data);
 
+    emit outputDataChanged(universe, d->_outputData[universe]);
     return true;
 }
 
 bool QDmxManager::writeData(quint8 universe, quint16 channel, const QByteArray& data)
 {
     Q_D(QDmxManager);
-    Q_ASSERT(channel + data.size() < 512);
+    Q_ASSERT(channel + data.size() <= 512);
 
     if(!d->_outputData.contains(universe))
     {
@@ -760,6 +782,7 @@ bool QDmxManager::writeData(quint8 universe, quint16 channel, const QByteArray& 
     for(const auto& p : d->_outputPatch.values(universe))
         p.device->setData(p.port, channel, data);
 
+    emit outputDataChanged(universe, d->_outputData[universe]);
     return true;
 }
 

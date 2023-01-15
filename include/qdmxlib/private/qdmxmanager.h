@@ -128,8 +128,13 @@ protected slots:
     void deviceInputDataChanged(quint8 port, const QByteArray& data);
 
 signals:
+    void patchChanged(QDmxManager::PortType portType);
     void availableDevicesChanged();
     void inputDataChanged(quint8 universe, const QByteArray& data);
+    void outputDataChanged(quint8 universe, const QByteArray& data);
+
+protected:
+    std::unique_ptr<QDmxManagerPrivate> d_ptr;
 };
 
 #endif // QDMXMANAGER_H
