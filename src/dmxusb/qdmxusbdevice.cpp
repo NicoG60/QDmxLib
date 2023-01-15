@@ -122,6 +122,10 @@ QDmxUsbDevice::QDmxUsbDevice(const QString& name,
 QDmxUsbDevice::~QDmxUsbDevice()
 {
     Q_D(QDmxUsbDevice);
+
+    if(d->_iface->isOpen())
+        d->_iface->close();
+
     delete d->_iface;
 }
 
@@ -163,6 +167,11 @@ quint16 QDmxUsbDevice::vendorId() const
 quint16 QDmxUsbDevice::productId() const
 {
     return d_func()->_productId;
+}
+
+QDmxUsbBackend* QDmxUsbDevice::privateBackend() const
+{
+    return d_func()->_backend;
 }
 
 void QDmxUsbDevice::setData(quint8 port, quint16 channel, quint8 data)

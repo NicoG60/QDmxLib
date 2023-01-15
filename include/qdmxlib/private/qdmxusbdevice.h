@@ -4,6 +4,7 @@
 #include "qdmxdevice.h"
 #include <QDebug>
 
+class QDmxUsbBackend;
 class QDmxUsbDriver;
 class QDmxUsbDevicePrivate;
 class Q_DECL_EXPORT QDmxUsbDevice : public QDmxDevice
@@ -61,6 +62,9 @@ public:
     QString vendor() const;
     quint16 vendorId() const;
     quint16 productId() const;
+
+protected:
+    QDmxUsbBackend* privateBackend() const;
 
 protected slots:
     void setData(quint8 port, quint16 channel, quint8 data) override;

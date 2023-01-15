@@ -3,7 +3,14 @@
 
 #include "qdmxdevice_p.h"
 #include "qdmxusbdevice.h"
-#include "qdmxftdibackend_p.h"
+
+#ifdef QDMXLIB_HAS_FTDI
+#include <qdmxlib/private/qdmxftdibackend_p.h>
+#endif
+
+#ifdef QDMXLIB_HAS_QTSERIAL
+#include <qdmxlib/private/qdmxserialbackend_p.h>
+#endif
 
 class QDmxUsbInterface;
 class QDmxUsbDevicePrivate : public QDmxDevicePrivate
@@ -28,10 +35,14 @@ public:
     {
         switch (backend) {
         case QDmxUsbDevice::LibFTDI:
+#ifdef QDMXLIB_HAS_FTDI
             _backend = new QDmxFTDIBackend(this);
+#endif
             break;
         case QDmxUsbDevice::FTD2XX:
-
+#ifdef QDMXLIB_HAS_QTSERIAL
+            _backend = new QDmxSerialBackend(this);
+#endif
             break;
         case QDmxUsbDevice::Serial:
 
