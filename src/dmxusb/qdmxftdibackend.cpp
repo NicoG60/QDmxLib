@@ -4,6 +4,7 @@
 #include <qdmxlib/private/qdmxusbglobal.h>
 
 #include <QDebug>
+#include <QThread>
 
 QDmxFTDIBackend::QDmxFTDIBackend(QDmxUsbDevicePrivate* device) :
     QDmxUsbBackend(device)
@@ -76,22 +77,45 @@ bool QDmxFTDIBackend::pollDevices(QList<QDmxUsbDevice*>& devices, QDmxUsbDriver*
 
 QByteArray QDmxFTDIBackend::readLabel(quint8 label, int& code)
 {
-    if (ftdi_usb_open_desc(_context, dmxusb_details::ftdi_vid, dmxusb_details::ftdi_pid,
-                           _d->_officialName.toLatin1().data(),
-                           _d->_serial.toLatin1().data()) < 0)
-        return {};
+    QByteArray sba = _d->_serial.toLatin1();
+    const char* serial = nullptr;
+    if (!sba.isEmpty())
+        serial = sba.data();
 
-    if (ftdi_usb_reset(_context) < 0)
-        return {};
+    QByteArray nba = _d->_officialName.toLatin1();
+    const char* name = nullptr;
+    if (!nba.isEmpty())
+        name = nba.data();
 
-    if (ftdi_set_baudrate(_context, 250000) < 0)
+    if(ftdi_usb_open_desc(_context, dmxusb_details::ftdi_vid, dmxusb_details::ftdi_pid, name, serial) < 0)
+    {
+        qWarning() << "[ftdi] Cannot open device to read label";
         return {};
+    }
 
-    if (ftdi_set_line_property(_context, BITS_8, STOP_BIT_2, NONE) < 0)
+    if(ftdi_usb_reset(_context) < 0)
+    {
+        qWarning() << "[ftdi] Cannot reset device to read label";
         return {};
+    }
 
-    if (ftdi_setflowctrl(_context, SIO_DISABLE_FLOW_CTRL) < 0)
+    if(ftdi_set_baudrate(_context, 250000) < 0)
+    {
+        qWarning() << "[ftdi] Cannot set baud rate to read label";
         return {};
+    }
+
+    if(ftdi_set_line_property(_context, BITS_8, STOP_BIT_2, NONE) < 0)
+    {
+        qWarning() << "[ftdi] Cannot set line property to read label";
+        return {};
+    }
+
+    if(ftdi_setflowctrl(_context, SIO_DISABLE_FLOW_CTRL) < 0)
+    {
+        qWarning() << "[ftdi] Cannot set flow control to read label";
+        return {};
+    }
 
     QByteArray request;
     request.append(dmxusb_details::enttec_pro_start_of_msg);
@@ -107,7 +131,7 @@ QByteArray QDmxFTDIBackend::readLabel(quint8 label, int& code)
     }
 
     QByteArray array(40, 0x00);
-    usleep(300000); // give some time to the device to respond
+    QThread::usleep(300000); // give some time to the device to respond
 
     ftdi_read_data(_context, (uchar*)array.data(), array.size());
 
@@ -132,12 +156,16 @@ bool QDmxFTDIBackend::open()
         return true;
 
     QByteArray sba = _d->_serial.toLatin1();
-    const char *ser = nullptr;
-    if (sba.isEmpty())
-        ser = sba.data();
+    const char *serial = nullptr;
+    if (!sba.isEmpty())
+        serial = sba.data();
 
-    if(ftdi_usb_open_desc(_context, _d->_vendorId, _d->_productId,
-                          _d->_officialName.toLatin1(), ser) < 0)
+    QByteArray nba = _d->_officialName.toLatin1();
+    const char *name = nullptr;
+    if (!nba.isEmpty())
+        name = nba.data();
+
+    if(ftdi_usb_open_desc(_context, _d->_vendorId, _d->_productId, name, serial) < 0)
     {
         qWarning() << "[ftdi]" << _d->_name << ftdi_get_error_string(_context);
         return false;

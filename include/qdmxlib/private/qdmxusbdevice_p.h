@@ -40,12 +40,14 @@ public:
 #endif
             break;
         case QDmxUsbDevice::FTD2XX:
-#ifdef QDMXLIB_HAS_QTSERIAL
-            _backend = new QDmxSerialBackend(this);
+#ifdef QDMXLIB_HAS_FTD2XX
+
 #endif
             break;
         case QDmxUsbDevice::Serial:
-
+#ifdef QDMXLIB_HAS_QTSERIAL
+            _backend = new QDmxSerialBackend(this);
+#endif
             break;
         default:
             break;
