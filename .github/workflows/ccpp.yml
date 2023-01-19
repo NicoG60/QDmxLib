@@ -20,7 +20,11 @@ jobs:
         with:
           modules: core network test serial
 
-      - run: cmake -DCMAKE_INSTALL_PREFIX=dist -DQMIDI_BUILD_TESTS=ON -S . -B build
+      - run: |
+          apt update && apt upgrade -y && apt install -y libftdi1-dev
+        if: ${{ runner.os == 'Linux' }}
+
+      - run: cmake -DCMAKE_INSTALL_PREFIX=dist -DQDMXLIB_BUILD_TESTS=ON -S . -B build
 
       - run: cmake --build build --config Release
 
