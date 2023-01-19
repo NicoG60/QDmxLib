@@ -18,6 +18,7 @@ set(HEADERS
     ${BUILD_INCLUDE}/qdmxlib/private/qdmxusbdevice_p.h
     ${BUILD_INCLUDE}/qdmxlib/private/qdmxusbbackend_p.h
     ${BUILD_INCLUDE}/qdmxlib/private/qdmxftdibackend_p.h
+    ${BUILD_INCLUDE}/qdmxlib/private/qdmxftd2xxbackend_p.h
     ${BUILD_INCLUDE}/qdmxlib/private/qdmxserialbackend_p.h
     ${BUILD_INCLUDE}/qdmxlib/private/qdmxusbglobal.h
     ${BUILD_INCLUDE}/qdmxlib/private/qdmxusbinterface.h
@@ -55,6 +56,7 @@ set(SOURCES
     dmxusb/qdmxusbdevice.cpp
     dmxusb/qdmxusbbackend.cpp
     dmxusb/qdmxftdibackend.cpp
+    dmxusb/qdmxftd2xxbackend.cpp
     dmxusb/qdmxserialbackend.cpp
     dmxusb/qdmxusbinterface.cpp
     dmxusb/qopendmx.cpp
@@ -78,6 +80,20 @@ if(TARGET Qt::SerialPort)
     )
 endif()
 
+if(UNIX AND NOT APPLE)
+    list(APPEND SOURCES
+        dmx4linux/qdmx4linuxdriver.cpp
+        dmx4linux/qdmx4linuxdevice.cpp
+    )
+
+    list(APPEND HEADERS
+        ${BUILD_INCLUDE}/qdmxlib/private/qdmx4linuxdriver.h
+        ${BUILD_INCLUDE}/qdmxlib/private/qdmx4linuxdevice.h
+        ${BUILD_INCLUDE}/qdmxlib/QDmx4LinuxDriver
+        ${BUILD_INCLUDE}/qdmxlib/QDmx4LinuxDevice
+    )
+endif()
+
 add_library(QDmxLib ${HEADERS} ${SOURCES})
 target_compile_definitions(QDmxLib PRIVATE QDMXLIB_LIBRARY)
 target_compile_definitions(QDmxLib PRIVATE SOFT_VERSION=${PROJECT_VERSION})
@@ -87,15 +103,23 @@ target_include_directories(QDmxLib PRIVATE ${${Qt}Core_PRIVATE_INCLUDE_DIRS})
 
 if(${LibFTDI1_FOUND})
     message(STATUS "Build with FTDI support")
-    target_compile_definitions(QDmxLib PUBLIC QDMXLIB_HAS_FTDI)
+    target_compile_definitions(QDmxLib PRIVATE QDMXLIB_HAS_FTDI)
     target_link_directories(QDmxLib PUBLIC ${LIBFTDI_LIBRARY_DIRS})
     target_link_libraries(QDmxLib PUBLIC ${LIBFTDI_LIBRARIES})
     target_include_directories(QDmxLib PUBLIC ${LIBFTDI_INCLUDE_DIRS} "/usr/local/include/libusb-1.0")
 endif()
 
+if(${LibFTD2XX_FOUND})
+    message(STATUS "Build with FTD2XX support")
+    target_compile_definitions(QDmxLib PRIVATE QDMXLIB_HAS_FTD2XX)
+    target_link_directories(QDmxLib PUBLIC ${LIBFTD2XX_LIBRARY_DIRS})
+    target_link_libraries(QDmxLib PUBLIC ${LIBFTD2XX_LIBRARIES})
+    target_include_directories(QDmxLib PUBLIC ${LIBFTD2XX_INCLUDE_DIRS})
+endif()
+
 if(TARGET Qt::SerialPort)
     message(STATUS "Build with Qt Serial support")
-    target_compile_definitions(QDmxLib PUBLIC QDMXLIB_HAS_QTSERIAL)
+    target_compile_definitions(QDmxLib PRIVATE QDMXLIB_HAS_QTSERIAL)
     target_link_libraries(QDmxLib PUBLIC Qt::SerialPort)
 endif()
 

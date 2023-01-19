@@ -112,9 +112,10 @@ QDmxUsbDevice::QDmxUsbDevice(const QString& name,
                              const QString& vendor,
                              quint16 vid,
                              quint16 pid,
+                             quint32 id,
                              QDmxUsbDevice::Backend backend,
                              QDmxUsbDriver* parent) :
-    QDmxDevice(*new QDmxUsbDevicePrivate(name, serial, vendor, vid, pid, backend, parent), parent)
+    QDmxDevice(*new QDmxUsbDevicePrivate(name, serial, vendor, vid, pid, id, backend, parent), parent)
 {
     d_func()->init();
 }

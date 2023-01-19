@@ -3,6 +3,15 @@
 #include <qdmxlib/private/qdmxdriver.h>
 #include <qdmxlib/private/qdmxusbglobal.h>
 
+#include <unistd.h>
+#include <ftdi.h>
+
+#ifdef Q_OS_LINUX
+#include <libusb-1.0/libusb.h>
+#else
+#include <libusb.h>
+#endif
+
 #include <QDebug>
 #include <QThread>
 
@@ -22,6 +31,8 @@ bool QDmxFTDIBackend::pollDevices(QList<QDmxUsbDevice*>& devices, QDmxUsbDriver*
 {
     bool shouldEmit = false;
     QList<QDmxUsbDevice*> tmp;
+
+    quint32 id = 0;
 
     int ret;
     ftdi_context* context = ftdi_new();
@@ -64,6 +75,7 @@ bool QDmxFTDIBackend::pollDevices(QList<QDmxUsbDevice*>& devices, QDmxUsbDriver*
                                manufacturer,
                                usb_desc.idVendor,
                                usb_desc.idProduct,
+                               id++,
                                QDmxUsbDevice::LibFTDI,
                                parent);
     }

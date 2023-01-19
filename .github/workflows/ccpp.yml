@@ -1,0 +1,34 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  test:
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: jurplel/install-qt-action@v2
+        with:
+          modules: core network test serial
+
+      - run: cmake -DCMAKE_INSTALL_PREFIX=dist -DQMIDI_BUILD_TESTS=ON -S . -B build
+
+      - run: cmake --build build --config Release
+
+      - run: ctest
+
+      - run: cmake --install build
+
+      - uses: actions/upload-artifact@v1
+        with:
+          name: release-${{ runner.os }}
+          path: dist

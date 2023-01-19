@@ -23,6 +23,7 @@ public:
                          const QString& vendor,
                          quint16 vid,
                          quint16 pid,
+                         quint32 id,
                          QDmxUsbDevice::Backend backend,
                          QDmxDriver* parent) :
         QDmxDevicePrivate(parent),
@@ -31,7 +32,8 @@ public:
         _serial(serial),
         _vendor(vendor),
         _vendorId(vid),
-        _productId(pid)
+        _productId(pid),
+        _id(id)
     {
         switch (backend) {
         case QDmxUsbDevice::LibFTDI:
@@ -63,6 +65,7 @@ public:
     QString _vendor;
     quint16 _vendorId;
     quint16 _productId;
+    quint32 _id;
     QDmxUsbBackend* _backend;
 
     QDmxUsbInterface* _iface = nullptr;

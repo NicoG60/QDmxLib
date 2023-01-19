@@ -18,6 +18,8 @@ bool QDmxSerialBackend::pollDevices(QList<QDmxUsbDevice*>& devices, QDmxUsbDrive
     bool shouldEmit = false;
     QList<QDmxUsbDevice*> tmp;
 
+    quint32 id = 0;
+
     for(const auto& info : QSerialPortInfo::availablePorts())
     {
         if(!checkIds(info.vendorIdentifier(), info.productIdentifier()))
@@ -30,6 +32,7 @@ bool QDmxSerialBackend::pollDevices(QList<QDmxUsbDevice*>& devices, QDmxUsbDrive
                                info.manufacturer(),
                                info.vendorIdentifier(),
                                info.productIdentifier(),
+                               id++,
                                QDmxUsbDevice::Serial,
                                parent);
 
