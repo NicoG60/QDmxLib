@@ -32,13 +32,11 @@ jobs:
           sudo apt update && sudo apt upgrade -y && sudo apt install -y libftdi1-dev
         if: ${{ runner.os == 'Linux' }}
 
-      - run: cmake -DCMAKE_INSTALL_PREFIX=dist -DQDMXLIB_BUILD_TESTS=ON -S . -B build
+      - run: cmake -DCMAKE_INSTALL_PREFIX=dist -DQDMXLIB_INSTALL=OFF -DQDMXLIB_BUILD_TESTS=ON -S . -B build
 
       - run: cmake --build build --config Release
 
       - run: ctest
-
-      - run: cmake --install build
 
       - uses: actions/upload-artifact@v1
         with:
