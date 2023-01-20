@@ -17,9 +17,6 @@ set(HEADERS
     ${BUILD_INCLUDE}/qdmxlib/private/qdmxusbdevice.h
     ${BUILD_INCLUDE}/qdmxlib/private/qdmxusbdevice_p.h
     ${BUILD_INCLUDE}/qdmxlib/private/qdmxusbbackend_p.h
-    ${BUILD_INCLUDE}/qdmxlib/private/qdmxftdibackend_p.h
-    ${BUILD_INCLUDE}/qdmxlib/private/qdmxftd2xxbackend_p.h
-    ${BUILD_INCLUDE}/qdmxlib/private/qdmxserialbackend_p.h
     ${BUILD_INCLUDE}/qdmxlib/private/qdmxusbglobal.h
     ${BUILD_INCLUDE}/qdmxlib/private/qdmxusbinterface.h
     ${BUILD_INCLUDE}/qdmxlib/private/qopendmx.h
@@ -54,10 +51,7 @@ set(SOURCES
 
     dmxusb/qdmxusbdriver.cpp
     dmxusb/qdmxusbdevice.cpp
-    dmxusb/qdmxusbbackend.cpp
-    dmxusb/qdmxftdibackend.cpp
-    dmxusb/qdmxftd2xxbackend.cpp
-    dmxusb/qdmxserialbackend.cpp
+    dmxusb/qdmxusbbackend.cpp    
     dmxusb/qdmxusbinterface.cpp
     dmxusb/qopendmx.cpp
     dmxusb/qenttecpro.cpp
@@ -107,6 +101,9 @@ if(${LibFTDI1_FOUND})
     target_link_directories(QDmxLib PUBLIC ${LIBFTDI_LIBRARY_DIRS})
     target_link_libraries(QDmxLib PUBLIC ${LIBFTDI_LIBRARIES})
     target_include_directories(QDmxLib PUBLIC ${LIBFTDI_INCLUDE_DIRS} "/usr/local/include/libusb-1.0")
+
+    list(APPEND SOURCES dmxusb/qdmxftdibackend.cpp)
+    list(APPEND HEADERS ${BUILD_INCLUDE}/qdmxlib/private/qdmxftdibackend_p.h)
 endif()
 
 if(${LibFTD2XX_FOUND})
@@ -115,12 +112,18 @@ if(${LibFTD2XX_FOUND})
     target_link_directories(QDmxLib PUBLIC ${LIBFTD2XX_LIBRARY_DIRS})
     target_link_libraries(QDmxLib PUBLIC ${LIBFTD2XX_LIBRARIES})
     target_include_directories(QDmxLib PUBLIC ${LIBFTD2XX_INCLUDE_DIRS})
+
+    list(APPEND SOURCES dmxusb/qdmxftd2xxbackend.cpp)
+    list(APPEND HEADERS ${BUILD_INCLUDE}/qdmxlib/private/qdmxftd2xxbackend_p.h)
 endif()
 
 if(TARGET Qt::SerialPort)
     message(STATUS "Build with Qt Serial support")
     target_compile_definitions(QDmxLib PRIVATE QDMXLIB_HAS_QTSERIAL)
     target_link_libraries(QDmxLib PUBLIC Qt::SerialPort)
+
+    list(APPEND SOURCES dmxusb/qdmxserialbackend.cpp)
+    list(APPEND HEADERS ${BUILD_INCLUDE}/qdmxlib/private/qdmxserialbackend_p.h)
 endif()
 
 target_include_directories(

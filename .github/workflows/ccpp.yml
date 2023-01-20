@@ -32,6 +32,9 @@ jobs:
           sudo apt update && sudo apt upgrade -y && sudo apt install -y libftdi1-dev
         if: ${{ runner.os == 'Linux' }}
 
+      - run: brew install libftdi
+        if: ${{ runner.os == 'maxOS' }}
+
       - run: cmake -DCMAKE_INSTALL_PREFIX=dist -DQDMXLIB_INSTALL=OFF -DQDMXLIB_BUILD_TESTS=ON -S . -B build
 
       - run: cmake --build build --config Release
