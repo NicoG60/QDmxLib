@@ -8,6 +8,10 @@
 #include <qdmxlib/private/qdmxftdibackend_p.h>
 #endif
 
+#ifdef QDMXLIB_HAS_FTD2XX
+#include <qdmxlib/private/qdmxftd2xxbackend_p.h>
+#endif
+
 #ifdef QDMXLIB_HAS_QTSERIAL
 #include <qdmxlib/private/qdmxserialbackend_p.h>
 #endif
@@ -38,17 +42,17 @@ public:
         switch (backend) {
         case QDmxUsbDevice::LibFTDI:
 #ifdef QDMXLIB_HAS_FTDI
-            _backend = new QDmxFTDIBackend(this);
+            _backend.reset(new QDmxFTDIBackend(this));
 #endif
             break;
         case QDmxUsbDevice::FTD2XX:
 #ifdef QDMXLIB_HAS_FTD2XX
-
+            _backend.reset(new QDmxFTD2XXBackend(this));
 #endif
             break;
         case QDmxUsbDevice::Serial:
 #ifdef QDMXLIB_HAS_QTSERIAL
-            _backend = new QDmxSerialBackend(this);
+            _backend.reset(new QDmxSerialBackend(this));
 #endif
             break;
         default:
@@ -66,7 +70,7 @@ public:
     quint16 _vendorId;
     quint16 _productId;
     quint32 _id;
-    QDmxUsbBackend* _backend;
+    std::unique_ptr<QDmxUsbBackend> _backend;
 
     QDmxUsbInterface* _iface = nullptr;
 };

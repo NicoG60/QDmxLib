@@ -172,7 +172,7 @@ quint16 QDmxUsbDevice::productId() const
 
 QDmxUsbBackend* QDmxUsbDevice::privateBackend() const
 {
-    return d_func()->_backend;
+    return d_func()->_backend.get();
 }
 
 void QDmxUsbDevice::setData(quint8 port, quint16 channel, quint8 data)

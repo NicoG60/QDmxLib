@@ -51,7 +51,7 @@ set(SOURCES
 
     dmxusb/qdmxusbdriver.cpp
     dmxusb/qdmxusbdevice.cpp
-    dmxusb/qdmxusbbackend.cpp    
+    dmxusb/qdmxusbbackend.cpp
     dmxusb/qdmxusbinterface.cpp
     dmxusb/qopendmx.cpp
     dmxusb/qenttecpro.cpp
@@ -88,6 +88,21 @@ if(UNIX AND NOT APPLE)
     )
 endif()
 
+if(${LibFTDI1_FOUND})
+    list(APPEND SOURCES dmxusb/qdmxftdibackend.cpp)
+    list(APPEND HEADERS ${BUILD_INCLUDE}/qdmxlib/private/qdmxftdibackend_p.h)
+endif()
+
+if(${LibFTD2XX_FOUND})
+    list(APPEND SOURCES dmxusb/qdmxftd2xxbackend.cpp)
+    list(APPEND HEADERS ${BUILD_INCLUDE}/qdmxlib/private/qdmxftd2xxbackend_p.h)
+endif()
+
+if(TARGET Qt::SerialPort)
+    list(APPEND SOURCES dmxusb/qdmxserialbackend.cpp)
+    list(APPEND HEADERS ${BUILD_INCLUDE}/qdmxlib/private/qdmxserialbackend_p.h)
+endif()
+
 add_library(QDmxLib ${HEADERS} ${SOURCES})
 target_compile_definitions(QDmxLib PRIVATE QDMXLIB_LIBRARY)
 target_compile_definitions(QDmxLib PRIVATE SOFT_VERSION=${PROJECT_VERSION})
@@ -101,9 +116,6 @@ if(${LibFTDI1_FOUND})
     target_link_directories(QDmxLib PUBLIC ${LIBFTDI_LIBRARY_DIRS})
     target_link_libraries(QDmxLib PUBLIC ${LIBFTDI_LIBRARIES})
     target_include_directories(QDmxLib PUBLIC ${LIBFTDI_INCLUDE_DIRS} "/usr/local/include/libusb-1.0")
-
-    list(APPEND SOURCES dmxusb/qdmxftdibackend.cpp)
-    list(APPEND HEADERS ${BUILD_INCLUDE}/qdmxlib/private/qdmxftdibackend_p.h)
 endif()
 
 if(${LibFTD2XX_FOUND})
@@ -112,18 +124,12 @@ if(${LibFTD2XX_FOUND})
     target_link_directories(QDmxLib PUBLIC ${LIBFTD2XX_LIBRARY_DIRS})
     target_link_libraries(QDmxLib PUBLIC ${LIBFTD2XX_LIBRARIES})
     target_include_directories(QDmxLib PUBLIC ${LIBFTD2XX_INCLUDE_DIRS})
-
-    list(APPEND SOURCES dmxusb/qdmxftd2xxbackend.cpp)
-    list(APPEND HEADERS ${BUILD_INCLUDE}/qdmxlib/private/qdmxftd2xxbackend_p.h)
 endif()
 
 if(TARGET Qt::SerialPort)
     message(STATUS "Build with Qt Serial support")
     target_compile_definitions(QDmxLib PRIVATE QDMXLIB_HAS_QTSERIAL)
     target_link_libraries(QDmxLib PUBLIC Qt::SerialPort)
-
-    list(APPEND SOURCES dmxusb/qdmxserialbackend.cpp)
-    list(APPEND HEADERS ${BUILD_INCLUDE}/qdmxlib/private/qdmxserialbackend_p.h)
 endif()
 
 target_include_directories(

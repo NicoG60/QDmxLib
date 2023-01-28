@@ -37,7 +37,7 @@ bool QDmxSerialBackend::pollDevices(QList<QDmxUsbDevice*>& devices, QDmxUsbDrive
                                parent);
 
         if(result)
-            dynamic_cast<QDmxSerialBackend*>(tmp.last()->d_func()->_backend)->setInfo(info);
+            dynamic_cast<QDmxSerialBackend*>(tmp.last()->privateBackend())->setInfo(info);
 
         shouldEmit |= result;
     }
